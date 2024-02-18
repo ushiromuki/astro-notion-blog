@@ -19,6 +19,7 @@
   "dependencies": {
     "@astrojs/react": "^3.0.3",
     "@astrojs/rss": "^3.0.0",
+    "@astrojs/vercel": "^5.2.0",
     "@notionhq/client": "^2.2.5",
     "@resvg/resvg-wasm": "^2.6.0",
     "@supercharge/promise-pool": "^2.4.0",
