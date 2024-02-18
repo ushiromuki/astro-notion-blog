@@ -15,7 +15,7 @@ const { block, headings } = Astro.props
 <div class={`callout ${snakeToKebab(block.Callout.Color)}`}>
   {
     block.Callout.Icon && (
-      <div class="icon">
+      <div>
         {block.Callout.Icon.Type === 'emoji' ? (
           block.Callout.Icon.Emoji
         ) : block.Callout.Icon.Type === 'external' ? (
@@ -53,14 +53,14 @@ const { block, headings } = Astro.props
     border-color: transparent;
     background: rgba(235, 236, 237, 0.6);
   }
-  .callout > div {
+  .callout div {
     margin: 0;
     line-height: 1.5rem;
   }
-  .callout > div.icon {
+  .callout div:first-child {
     margin-right: 0.7rem;
   }
-  .callout > div.icon > img {
+  .callout div:first-child img {
     width: 1.2rem;
     height: 1.2rem;
   }

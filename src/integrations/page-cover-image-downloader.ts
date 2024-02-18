@@ -3,7 +3,7 @@ import { getAllPosts, downloadFile } from '../lib/notion/client'
 import { chunkArray, wait } from '../lib/utils'
 
 export default (): AstroIntegration => ({
-  name: 'featured-image-downloader',
+  name: 'page-cover-image-downloader',
   hooks: {
     'astro:build:start': async () => {
       const posts = await getAllPosts()
@@ -11,20 +11,21 @@ export default (): AstroIntegration => ({
       // Download featured images in parallel
       const chunkedPosts = chunkArray(posts, 5)
 
-      // 各チャンクに対して処理を行います
       for (const chunk of chunkedPosts) {
-        // console.log('chunk', chunk)
         await Promise.all(
           chunk.map((post) => {
-            if (!post.FeaturedImage || !post.FeaturedImage.Url) {
+            if (!post.Cover || !post.Cover.Url) {
+              return Promise.resolve()
+            }
+            if (post.Cover.Type !== 'file') {
               return Promise.resolve()
             }
 
             let url!: URL
             try {
-              url = new URL(post.FeaturedImage.Url)
+              url = new URL(post.Cover.Url)
             } catch (err) {
-              console.log('Invalid FeaturedImage URL')
+              console.log('Invalid PageCoverImage URL')
               return Promise.resolve()
             }
 
