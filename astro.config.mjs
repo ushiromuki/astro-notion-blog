@@ -41,5 +41,7 @@ export default defineConfig({
     PublicNotionCopier(),
     PageCoverImageDownloader(),
   ],
-  adapter: vercel(),
+  adapter: vercel({
+    webAnalytics: { enabled: true }
+  }),
 });
