@@ -4,8 +4,8 @@
   "version": "0.6.3",
   "private": true,
   "scripts": {
-    "dev": "astro dev",
-    "start": "astro dev",
+    "dev": "astro dev --host 0.0.0.0",
+    "start": "astro dev --host 0.0.0.0",
     "build": "astro build",
     "build:cached": "npm run cache:fetch && astro build",
     "preview": "astro preview",
@@ -19,6 +19,7 @@
   "dependencies": {
     "@astrojs/react": "^3.0.3",
     "@astrojs/rss": "^3.0.0",
+    "@astrojs/tailwind": "^5.1.0",
     "@astrojs/vercel": "^5.2.0",
     "@notionhq/client": "^2.2.5",
     "@resvg/resvg-wasm": "^2.6.0",
@@ -39,7 +40,8 @@
     "prismjs": "^1.29.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "sharp": "^0.32.4"
+    "sharp": "^0.32.4",
+    "tailwindcss": "^3.4.1"
   },
   "devDependencies": {
     "@nrwl/nx-cloud": "^15.0.2",
