@@ -6,7 +6,7 @@ import FeaturedImageDownloader from './src/integrations/featured-image-downloade
 import PageCoverImageDownloader from './src/integrations/page-cover-image-downloader';
 import PublicNotionCopier from './src/integrations/public-notion-copier';
 import vercel from '@astrojs/vercel/serverless';
-
+import tailwind from "@astrojs/tailwind";
 const getSite = function () {
   if (CUSTOM_DOMAIN) {
     return new URL(BASE_PATH, `https://${CUSTOM_DOMAIN}`).toString();
@@ -18,30 +18,21 @@ const getSite = function () {
     if (process.env.CF_PAGES_BRANCH !== 'main') {
       return new URL(BASE_PATH, process.env.CF_PAGES_URL).toString();
     }
-    return new URL(
-      BASE_PATH,
-      `https://${new URL(process.env.CF_PAGES_URL).host
-        .split('.')
-        .slice(1)
-        .join('.')}`
-    ).toString();
+    return new URL(BASE_PATH, `https://${new URL(process.env.CF_PAGES_URL).host.split('.').slice(1).join('.')}`).toString();
   }
   return new URL(BASE_PATH, 'http://localhost:4321').toString();
 };
+
 
 // https://astro.build/config
 export default defineConfig({
   site: getSite(),
   base: BASE_PATH,
   output: 'hybrid',
-  integrations: [
-    CoverImageDownloader(),
-    CustomIconDownloader(),
-    FeaturedImageDownloader(),
-    PublicNotionCopier(),
-    PageCoverImageDownloader(),
-  ],
+  integrations: [CoverImageDownloader(), CustomIconDownloader(), FeaturedImageDownloader(), PublicNotionCopier(), PageCoverImageDownloader(), tailwind()],
   adapter: vercel({
-    webAnalytics: { enabled: true }
-  }),
+    webAnalytics: {
+      enabled: true
+    }
+  })
 });
