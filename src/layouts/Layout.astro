@@ -80,20 +80,20 @@ if (database.Icon && database.Icon.Type === 'file') {
     />
   </head>
   <body>
-    <div class="container">
+    <div class="w-100">
       <header>
         {
           pageCoverImage !== '' ? (
-            <div class="cover">
-              <img src={pageCoverImage} />
+            <div class="w-full h-36 overflow-hidden bg-gradient-to-r from-neutral-700 to-stone-900">
+              <img class="w-full object-contain object-top-left" src={pageCoverImage} />
             </div>
           ) : (
-            <div class="cover" />
+            <div class="h-24 md:h-36 cover" />
           )
         }
       </header>
 
-      <div>
+      <div class="container mx-auto">
         <main>
           <div class="content">
             <header>
@@ -164,16 +164,7 @@ if (database.Icon && database.Icon.Type === 'file') {
 </html>
 
 <style>
-  .container {
-    min-height: 100vh;
-  }
-
-  .container > div {
-    display: block;
-    max-width: 1280px;
-    margin-left: auto;
-    margin-right: auto;
-  }
+  
 
   main {
     flex: 1;
@@ -190,7 +181,6 @@ if (database.Icon && database.Icon.Type === 'file') {
   }
   div.cover {
     width: 100%;
-    height: 32vh;
     object-fit: cover;
     object-position: center 60%;
     background-color: #fa8bff;
@@ -201,21 +191,11 @@ if (database.Icon && database.Icon.Type === 'file') {
       #2bff88 90%
     );
   }
-  div.cover img {
-    display: block;
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    object-position: center 60%;
-  }
 
   div.content {
     padding: 20px 40px;
   }
   @media (max-width: 640px) {
-    div.cover {
-      height: 8vh;
-    }
     div.content {
       padding: 0 18px;
     }
