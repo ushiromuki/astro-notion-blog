@@ -6,12 +6,13 @@ import '../styles/notion-color.css'
 export interface Props {
   post: Post
   enableLink: boolean
+  directionRight? : boolean
 }
 
-const { post, enableLink = true } = Astro.props
+const { post, enableLink = true, directionRight = false } = Astro.props
 ---
 
-<div class="post-tags">
+<div class={`post-tags ${directionRight ? "justify-end":""}`}>
   {
     post.Tags &&
       post.Tags.length > 0 &&
