@@ -29,7 +29,6 @@ export async function getStaticPaths() {
   return allTags.map((tag: SelectProperty) => ({ params: { tag: tag.name } }))
 }
 
-
 const { tag } = Astro.params
 
 const [posts, rankedPosts, tags, numberOfPages] = await Promise.all([

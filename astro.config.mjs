@@ -7,6 +7,7 @@ import PageCoverImageDownloader from './src/integrations/page-cover-image-downlo
 import PublicNotionCopier from './src/integrations/public-notion-copier';
 import vercel from '@astrojs/vercel/serverless';
 import tailwind from "@astrojs/tailwind";
+
 const getSite = function () {
   if (CUSTOM_DOMAIN) {
     return new URL(BASE_PATH, `https://${CUSTOM_DOMAIN}`).toString();

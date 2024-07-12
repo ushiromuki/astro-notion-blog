@@ -29,8 +29,6 @@ export async function getStaticPaths() {
   return params
 }
 
-
-
 const { page } = Astro.params
 
 const [posts, rankedPosts, tags, numberOfPages] = await Promise.all([
