@@ -32,8 +32,6 @@ export async function getStaticPaths() {
   return posts.map((post: interfaces.Post) => ({ params: { slug: post.Slug } }))
 }
 
-
-
 const { slug } = Astro.params
 
 const post = await getPostBySlug(slug)
@@ -134,7 +132,6 @@ if (post.Cover && post.Cover.Url) {
         (p: interfaces.Post) => p.Slug !== post.Slug
       )}
     />
-
     <BlogPostsLink heading="Latest posts" posts={recentPosts} />
     <BlogTagsLink heading="Categories" tags={tags} />
   </div>
