@@ -15,14 +15,16 @@ const { post } = Astro.props
 
 <style>
   .read-more-link {
-    color: var(--fg);
+    color: var(--accents-1);
+    text-align: right;
   }
   .read-more-link a {
-    color: rgb(55, 53, 47);
+    color: inherit;
     font-size: 1rem;
     font-weight: 500;
     line-height: 2rem;
-    text-decoration: underline;
+    border-bottom: dotted 2px var(--accents-1);
+   
   }
   @media (max-width: 640px) {
     .read-more-link a {

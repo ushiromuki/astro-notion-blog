@@ -409,7 +409,12 @@ export async function downloadFile(url: URL) {
 
   let stream = res.data
 
-  if (res.headers['content-type'] === 'image/jpeg') {
+  if (
+    res.headers['content-type'] === 'image/jpeg' ||
+    res.headers['content-type'] === 'image/png' ||
+    res.headers['content-type'] === 'image/gif' ||
+    res.headers['content-type'] === 'image/webp'
+  ) {
     stream = stream.pipe(rotate)
   }
   try {
@@ -951,7 +956,7 @@ function _buildPost(pageObject: responses.PageObject): Post {
   if (pageObject.cover) {
     cover = {
       Type: pageObject.cover.type,
-      Url: pageObject.cover.external?.url || '',
+      Url: pageObject.cover.external?.url || pageObject.cover?.file?.url || '',
     }
   }
 
