@@ -6,8 +6,9 @@ import CustomIconDownloader from './src/integrations/custom-icon-downloader';
 import FeaturedImageDownloader from './src/integrations/featured-image-downloader';
 import PageCoverImageDownloader from './src/integrations/page-cover-image-downloader';
 import PublicNotionCopier from './src/integrations/public-notion-copier';
-import vercel from '@astrojs/vercel';
 import tailwind from '@astrojs/tailwind';
+
+import cloudflare from '@astrojs/cloudflare';
 
 const getSite = function () {
   if (CUSTOM_DOMAIN) {
@@ -45,9 +46,5 @@ export default defineConfig({
     PageCoverImageDownloader(),
     tailwind(),
   ],
-  adapter: vercel({
-    webAnalytics: {
-      enabled: true,
-    },
-  }),
+  adapter: cloudflare(),
 });
