@@ -1,8 +1,11 @@
 name: Deploy
 
 on:
-  #schedule:
-  #  - cron: '5 23 * * 0' # 08:05(Mon) JST
+  schedule:
+    # 毎日 8 時
+    - cron: '0 8 * * *'
+
+
   workflow_dispatch:
 
 jobs:

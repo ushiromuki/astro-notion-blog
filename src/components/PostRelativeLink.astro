@@ -14,28 +14,29 @@ const { prevPost, nextPost } = Astro.props
 <div class="post-relative-link">
   <div>
     {
-      nextPost && (
-        <a href={getPostLink(nextPost.Slug)} class="colored">
-          <div>◀︎ Next</div>
-          <div>{nextPost.Title}</div>
-          <PostTags post={nextPost} enableLink={false} />
-        </a>
-      )
-    }
-  </div>
-  <div>
-    {
       prevPost && (
-        <a href={getPostLink(prevPost.Slug)} class="colored">
-          <div>▶︎ Previous</div>
-          <div>{prevPost.Title}</div>
+        <a href={getPostLink(prevPost.Slug)} class="colored flex flex-col justify-start gap-2">
+          <div class="text-left">◀ Previous</div>
+          <div class="text-left font-bold">{prevPost.Title}</div>
           <PostTags post={prevPost} enableLink={false} />
         </a>
       )
     }
+    
   </div>
   <div>
-    <a href={getNavLink('/')} class="text">↑Top</a>
+    {
+      nextPost && (
+        <a href={getPostLink(nextPost.Slug)} class="colored flex flex-col justify-end gap-2">
+          <div class="text-right">▶︎ Next</div>
+          <div class="text-right font-bold">{nextPost.Title}</div>
+          <PostTags post={nextPost} enableLink={false} directionRight={true}/>
+        </a>
+      )
+    }
+  </div>
+  <div>
+    <a href={getNavLink('/posts')} class="text">目次に戻る</a>
   </div>
 </div>
 
@@ -48,7 +49,6 @@ const { prevPost, nextPost } = Astro.props
     margin-top: 0.6rem;
   }
   div.post-relative-link > div > a {
-    display: block;
     text-align: center;
     line-height: 1.2rem;
     font-size: 0.95rem;
@@ -58,25 +58,16 @@ const { prevPost, nextPost } = Astro.props
     padding: 0.5rem;
     color: inherit;
     font-size: 1rem;
-    text-decoration: underline;
+    border-bottom: dotted 2px var(--accents-1);
+    color: var(--accents-1);
     font-weight: 500;
+    display: block;
   }
   div.post-relative-link > div > a.colored {
     padding: 1rem;
     border-radius: var(--radius);
-    color: var(--fg);
-    background: rgba(227, 226, 224, 0.5);
+    color: var(--accents-1);
+    border: dotted 2px var(--accents-1);
   }
-  div.post-relative-link > div > a.colored > div:first-child {
-    width: auto;
-    text-align: left;
-    font-size: 0.85rem;
-  }
-  div.post-relative-link > div > a.colored > div:nth-child(2) {
-    width: auto;
-    padding: 0.2rem 0 0.4rem;
-    text-align: left;
-    font-size: 1rem;
-    font-weight: bold;
-  }
+  
 </style>
