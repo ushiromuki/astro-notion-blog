@@ -37,28 +37,30 @@ const { heading, tags } = Astro.props
   .blog-tags-link h2 {
     margin: 0;
     padding-left: 0.4rem;
-    color: #777;
+    color: var(--second-text);
     font-size: 0.95rem;
   }
   .blog-tags-link ul {
+    display:flex;
+    flex-wrap: wrap;
     list-style-type: none;
     padding: 0;
     margin-top: 0.3rem;
     margin-block-end: 1rem;
+    gap: var(--gap-quarter);
   }
   .blog-tags-link ul li {
     position: relative;
-    padding: 0.4rem;
     line-height: 1.2rem;
     font-size: 0.9rem;
-    gap: 6px;
   }
   .blog-tags-link ul li a {
+    display: block;
     min-width: 0;
     border-radius: 3px;
     padding: 2px 6px;
     line-height: 1.2;
-    color: rgb(50, 48, 44);
+    color: var(--fg);
     background: rgba(227, 226, 224, 0.5);
   }
 </style>

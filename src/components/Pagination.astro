@@ -41,7 +41,7 @@ for (let i = startPage; i <= endPage; i++) {
     display: flex;
     width: 100%;
     margin: 0 auto;
-    color: var(--fg);
+    color: var(--accents-1);
     justify-content: center;
     align-items: center;
   }
@@ -50,20 +50,20 @@ for (let i = startPage; i <= endPage; i++) {
     width: 2.4rem;
     height: 3rem;
     margin: 0 0.4rem;
-    border-radius: var(--radius);
-    background: #f4f4f4;
+    border-bottom: dotted 2px var(--accents-1);
     color: inherit;
     font-size: 0.85rem;
     text-align: center;
-    text-decoration: underline;
     font-weight: 500;
     line-height: 3rem;
   }
   .pagination a:hover:not(.inactive) {
-    background: #ddd;
+    opacity: 0.5;
   }
   .pagination a.inactive {
-    color: #999;
+    color: var(--second-text);
     text-decoration: none;
+    border-bottom: dotted 2px var(--second-text);
+    opacity: 0.5;
   }
 </style>
