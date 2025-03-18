@@ -1,8 +1,8 @@
 export const prerender = false
 
 import type { APIContext } from 'astro'
-import { getPostBySlug } from '../../src/lib/notion/client'
-import { loadGoogleFont } from '../../src/lib/loadGoogleFont'
+import { getPostBySlug } from '../../lib/notion/client'
+import { loadGoogleFont } from '../../lib/loadGoogleFont'
 import { ImageResponse } from '@cloudflare/pages-plugin-vercel-og/api'
 
 const U200D = String.fromCharCode(8205)
