@@ -72,6 +72,7 @@ export default defineConfig({
         'child_process',
         'os'
       ],
+      noExternal: ['prismjs', 'katex']
     },
   },
   adapter: cloudflare(),
