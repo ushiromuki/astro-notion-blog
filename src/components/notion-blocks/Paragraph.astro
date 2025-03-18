@@ -21,7 +21,7 @@ const { block, headings } = Astro.props
   }
   {
     block.Paragraph.Children && (
-      <NotionBlocks blocks={block.Paragraph.Children} headings={headings} />
+      <NotionBlocks blocks={block.Paragraph.Children} headings={headings} client:only="js"/>
     )
   }
 </p>

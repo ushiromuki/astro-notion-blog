@@ -26,6 +26,7 @@ const { block, headings } = Astro.props
           <NotionBlocks
             blocks={b.BulletedListItem.Children}
             headings={headings}
+            client:only="js"
           />
         )}
       </li>

@@ -14,7 +14,7 @@ const { block, headings } = Astro.props
   {
     block.ColumnList.Columns.map((column: interfaces.Column) => (
       <div>
-        <NotionBlocks blocks={column.Children} headings={headings} />
+        <NotionBlocks blocks={column.Children} headings={headings} client:only="js"/>
       </div>
     ))
   }

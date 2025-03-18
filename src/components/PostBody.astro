@@ -10,7 +10,7 @@ const { blocks } = Astro.props
 ---
 
 <div class="post-body">
-  <NotionBlocks blocks={blocks} isRoot={true} />
+  <NotionBlocks blocks={blocks} isRoot={true} client:only="js"/>
 </div>
 
 <style>

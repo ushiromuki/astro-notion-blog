@@ -12,7 +12,7 @@ const blocks = await getAllBlocksByBlockId(INDEX_PAGE_ID)
 
 <Layout>
   <div slot="main">
-    <NotionBlocks blocks={blocks} isRoot={true} />
+    <NotionBlocks blocks={blocks} isRoot={true} client:only="js"/>
   </div>
 
   <div slot="aside"></div>

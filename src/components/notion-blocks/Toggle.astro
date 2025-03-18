@@ -22,7 +22,7 @@ const { block, headings } = Astro.props
     }
   </summary>
   <div>
-    <NotionBlocks blocks={block.Toggle.Children} headings={headings} />
+    <NotionBlocks blocks={block.Toggle.Children} headings={headings} client:only="js"/>
   </div>
 </details>
 

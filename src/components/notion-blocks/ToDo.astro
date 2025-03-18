@@ -30,7 +30,7 @@ const { block, headings } = Astro.props
             return <RichText richText={richText} />
           })}
           {b.HasChildren && (
-            <NotionBlocks blocks={b.ToDo.Children} headings={headings} />
+            <NotionBlocks blocks={b.ToDo.Children} headings={headings} client:only="js"/>
           )}
         </div>
       )
