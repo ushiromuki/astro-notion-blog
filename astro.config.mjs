@@ -49,7 +49,29 @@ export default defineConfig({
   ],
 
   vite: {
-    plugins: [tailwindcss()]
+    plugins: [tailwindcss()],
+    ssr: {
+      external: [
+        'node:fs',
+        'node:stream/promises',
+        'stream',
+        'url',
+        'path',
+        'fs',
+        'vm',
+        'events',
+        'util',
+        'http',
+        'https',
+        'zlib',
+        'crypto',
+        'net',
+        'tls',
+        'assert',
+        'child_process',
+        'os'
+      ],
+    },
   },
   adapter: cloudflare(),
 });
