@@ -1,11 +1,11 @@
 ---
-import { ENABLE_LIGHTBOX } from '../server-constants.ts'
+import { filePath, getNavLink, getStaticFilePath } from '../lib/blog-helpers.ts'
 import { getDatabase } from '../lib/notion/client.ts'
-import { getNavLink, getStaticFilePath, filePath } from '../lib/blog-helpers.ts'
+import { ENABLE_LIGHTBOX } from '../server-constants.ts'
 import '../styles/syntax-coloring.css'
-import SearchModal from '../components/SearchModal.astro'
 import SearchButton from '../components/SearchButton.astro'
-import "../styles/global.css"
+import SearchModal from '../components/SearchModal.astro'
+import '../styles/global.css'
 
 export interface Props {
   title: string

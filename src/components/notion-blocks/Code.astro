@@ -13,7 +13,7 @@ import 'prismjs/components/prism-ruby'
 import 'prismjs/components/prism-sql'
 import 'prismjs/components/prism-typescript'
 import 'prismjs/components/prism-yaml'
-import * as interfaces from '../../lib/interfaces'
+import type * as interfaces from '../../lib/interfaces'
 import Caption from './Caption.astro'
 
 export interface Props {
@@ -22,10 +22,11 @@ export interface Props {
 
 const { block } = Astro.props
 
-const code = block.Code.RichTexts.map(
-  (richText: interfaces.RichText) => richText.Text.Content
-).join('')
-const language = block.Code.Language.toLowerCase()
+const code =
+  block.Code?.RichTexts.map(
+    (richText: interfaces.RichText) => richText.Text?.Content || ''
+  ).join('') || ''
+const language = block.Code?.Language.toLowerCase() || ''
 const grammer =
   Prism.languages[language.toLowerCase()] || Prism.languages.javascript
 ---
@@ -48,7 +49,7 @@ const grammer =
       )
     }
   </div>
-  <Caption richTexts={block.Code.Caption} />
+  <Caption richTexts={block.Code?.Caption || []} />
 </div>
 
 <script>
@@ -60,14 +61,14 @@ const grammer =
   document.querySelectorAll('button.copy').forEach((button) => {
     button.addEventListener('click', (ev) => {
       navigator.clipboard
-        .writeText(ev.target.getAttribute('data-code'))
+        .writeText(ev.target?.getAttribute('data-code') || '')
         .then(() => {
-          const originalText = ev.target.innerText
+          const originalText = ev.target?.innerText || ''
 
-          ev.target.innerText = ev.target.getAttribute('data-done-text')
+            ev.target.innerText = ev.target?.getAttribute('data-done-text') || ''
 
           setTimeout(() => {
-            ev.target.innerText = originalText
+              ev.target.innerText = originalText
           }, 3000)
         })
     })

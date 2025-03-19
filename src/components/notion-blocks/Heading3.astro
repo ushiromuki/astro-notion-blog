@@ -1,8 +1,8 @@
 ---
-import * as interfaces from '../../lib/interfaces.ts'
 import { buildHeadingId } from '../../lib/blog-helpers.ts'
-import RichText from './RichText.astro'
+import * as interfaces from '../../lib/interfaces.ts'
 import NotionBlocks from '../NotionBlocks.astro'
+import RichText from './RichText.astro'
 
 export interface Props {
   block: interfaces.Block
@@ -28,7 +28,7 @@ const id = buildHeadingId(block.Heading3)
       </summary>
       <div>
         {block.Heading3.Children && (
-          <NotionBlocks blocks={block.Heading3.Children} headings={headings} client:only="js"/>
+          <NotionBlocks blocks={block.Heading3.Children} headings={headings} />
         )}
       </div>
     </details>

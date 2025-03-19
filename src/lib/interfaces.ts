@@ -11,10 +11,12 @@ export interface Post {
   Icon: FileObject | Emoji | null
   Cover: FileObject | null
   Slug: string
-  Date: string
-  Tags: SelectProperty[]
-  Excerpt: string
-  FeaturedImage: FileObject | null
+  Date?: string
+  Tags?: SelectProperty[]
+  Excerpt?: string
+  FeaturedImage?: {
+    Url: string
+  }
   Rank: number
 }
 
@@ -38,10 +40,10 @@ export interface Block {
   Callout?: Callout
   SyncedBlock?: SyncedBlock
   Toggle?: Toggle
-  Embed?: Embed
+  Embed?: { Url: string }
   Video?: Video
-  Bookmark?: Bookmark
-  LinkPreview?: LinkPreview
+  Bookmark?: { Url: string }
+  LinkPreview?: { Url: string }
   Table?: Table
   ColumnList?: ColumnList
   TableOfContents?: TableOfContents

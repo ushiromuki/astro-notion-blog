@@ -1,5 +1,6 @@
 ---
 import createMetascraper from 'metascraper'
+import type { Metadata } from 'metascraper'
 import metascraperDescription from 'metascraper-description'
 import metascraperImage from 'metascraper-image'
 import metascraperTitle from 'metascraper-title'
@@ -13,26 +14,35 @@ export interface Props {
 
 const { block, urlMap } = Astro.props
 
-const urlString = (block.Bookmark || block.LinkPreview || block.Embed).Url
+const urlString = (
+  block.Bookmark?.Url ||
+  block.LinkPreview?.Url ||
+  block.Embed?.Url ||
+  ''
+).trim()
 
-let url: URL
-let metadata: Record<string, string>
+let url: URL | null = null
+let metadata: Metadata | null = null
+
 try {
-  url = new URL(urlString)
+  if (urlString) {
+    url = new URL(urlString)
 
-  if (!isAmazonURL(url)) {
-    const metascraper = createMetascraper([
-      metascraperDescription(),
-      metascraperImage(),
-      metascraperTitle(),
-    ])
-    const html = urlMap[url.toString()]
-    if (html) {
-      metadata = await metascraper({ html, url })
+    if (!isAmazonURL(url)) {
+      const metascraper = createMetascraper([
+        metascraperDescription(),
+        metascraperImage(),
+        metascraperTitle(),
+      ])
+      const html = urlMap[url.toString()]
+      if (html) {
+        metadata = await metascraper({ html, url: url.toString() as string })
+      }
     }
   }
 } catch (err) {
-  console.log(err)
+  console.error('URL解析エラー:', err)
+  url = null
 }
 ---
 
@@ -47,8 +57,8 @@ try {
         <div class="bookmark">
           <a href={url.toString()} target="_blank" rel="noopener noreferrer">
             <div>
-              <div>{metadata && metadata.title}</div>
-              <div>{metadata && metadata.description}</div>
+              <div>{metadata?.title}</div>
+              <div>{metadata?.description}</div>
               <div>
                 <div>
                   <img
@@ -61,7 +71,7 @@ try {
               </div>
             </div>
             <div>
-              {metadata && metadata.image && (
+              {metadata?.image && (
                 <img
                   src={metadata.image}
                   alt="Site image of the bookmark"

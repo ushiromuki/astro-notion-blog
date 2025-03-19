@@ -1,8 +1,8 @@
 ---
-import * as interfaces from '../../lib/interfaces.ts'
+import type * as interfaces from '../../lib/interfaces.ts'
 import { snakeToKebab } from '../../lib/style-helpers.ts'
-import RichText from './RichText.astro'
 import NotionBlocks from '../NotionBlocks.astro'
+import RichText from './RichText.astro'
 
 export interface Props {
   block: interfaces.Block
@@ -10,33 +10,39 @@ export interface Props {
 }
 
 const { block, headings } = Astro.props
+
+const isCallout = (
+  b: interfaces.Block
+): b is interfaces.Block & { Callout: interfaces.Callout } => !!b.Callout
 ---
 
-<div class={`callout ${snakeToKebab(block.Callout.Color)}`}>
-  {
-    block.Callout.Icon && (
-      <div class="icon">
-        {block.Callout.Icon.Type === 'emoji' ? (
-          block.Callout.Icon.Emoji
-        ) : block.Callout.Icon.Type === 'external' ? (
-          <img src={block.Callout.Icon.Url} alt="Icon in a callout block" />
-        ) : null}
-      </div>
-    )
-  }
-  <div>
+{isCallout(block) && (
+  <div class={`callout ${snakeToKebab(block.Callout.Color)}`}>
     {
-      block.Callout.RichTexts.map((richText: interfaces.RichText) => (
-        <RichText richText={richText} />
-      ))
-    }
-    {
-      block.Callout.Children && (
-        <NotionBlocks blocks={block.Callout.Children} headings={headings} client:only="js"/>
+      block.Callout.Icon && (
+        <div class="icon">
+          {block.Callout.Icon.Type === 'emoji' ? (
+            block.Callout.Icon.Emoji
+          ) : block.Callout.Icon.Type === 'external' ? (
+            <img src={block.Callout.Icon.Url} alt="Icon in a callout block" />
+          ) : null}
+        </div>
       )
     }
+    <div>
+      {
+        block.Callout.RichTexts.map((richText: interfaces.RichText) => (
+          <RichText richText={richText} />
+        ))
+      }
+      {
+        block.Callout.Children && (
+          <NotionBlocks blocks={block.Callout.Children} headings={headings} />
+        )
+      }
+    </div>
   </div>
-</div>
+)}
 
 <style>
   .callout {

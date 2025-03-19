@@ -1,10 +1,11 @@
-import { defineConfig } from 'astro/config';
+import { defineConfig, passthroughImageService} from 'astro/config';
 import icon from 'astro-icon';
 import { CUSTOM_DOMAIN, BASE_PATH } from './src/server-constants';
 import CoverImageDownloader from './src/integrations/cover-image-downloader';
 import CustomIconDownloader from './src/integrations/custom-icon-downloader';
 import FeaturedImageDownloader from './src/integrations/featured-image-downloader';
 import PublicNotionCopier from './src/integrations/public-notion-copier';
+import pageCoverImageDownloader from './src/integrations/page-cover-image-downloader';
 import cloudflare from '@astrojs/cloudflare';
 
 import tailwindcss from '@tailwindcss/vite';
@@ -46,6 +47,7 @@ export default defineConfig({
     CoverImageDownloader(),
     CustomIconDownloader(),
     FeaturedImageDownloader(),
+    pageCoverImageDownloader(),
     PublicNotionCopier(),
   ],
 
@@ -75,5 +77,7 @@ export default defineConfig({
       noExternal: ['prismjs', 'katex']
     },
   },
-  adapter: cloudflare(),
+  adapter: cloudflare({
+    imageService: passthroughImageService()
+  }),
 });

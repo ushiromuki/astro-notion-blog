@@ -1,5 +1,5 @@
 import type { AstroIntegration } from 'astro'
-import { getAllPosts, downloadFile } from '../lib/notion/client'
+import { downloadFile, getAllPosts } from '../lib/notion/client'
 import { chunkArray, wait } from '../lib/utils'
 
 export default (): AstroIntegration => ({

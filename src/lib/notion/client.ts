@@ -1,60 +1,60 @@
 import fs, { createWriteStream } from 'node:fs'
 import { pipeline } from 'node:stream/promises'
-import axios from 'axios'
-import sharp from 'sharp'
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+import { APIResponseError, Client } from '@notionhq/client'
 import retry from 'async-retry'
+import axios from 'axios'
+import type { AxiosResponse } from 'axios'
 import ExifTransformer from 'exif-be-gone'
+import sharp from 'sharp'
 import {
-  NOTION_API_SECRET,
   DATABASE_ID,
+  NOTION_API_SECRET,
   NUMBER_OF_POSTS_PER_PAGE,
   REQUEST_TIMEOUT_MS,
 } from '../../server-constants'
-import type { AxiosResponse } from 'axios'
-import type * as responses from './responses'
-import type * as requestParams from './request-params'
 import type {
-  Database,
-  Post,
+  Annotation,
   Block,
-  Paragraph,
+  Bookmark,
+  BulletedListItem,
+  Callout,
+  Code,
+  Column,
+  ColumnList,
+  Database,
+  Embed,
+  Emoji,
+  Equation,
+  File,
+  FileObject,
   Heading1,
   Heading2,
   Heading3,
-  BulletedListItem,
-  NumberedListItem,
-  ToDo,
   Image,
-  Code,
-  Quote,
-  Equation,
-  Callout,
-  Embed,
-  Video,
-  File,
-  Bookmark,
   LinkPreview,
+  LinkToPage,
+  Mention,
+  NumberedListItem,
+  Paragraph,
+  Post,
+  Quote,
+  Reference,
+  RichText,
+  SelectProperty,
   SyncedBlock,
   SyncedFrom,
   Table,
-  TableRow,
   TableCell,
-  Toggle,
-  ColumnList,
-  Column,
   TableOfContents,
-  RichText,
+  TableRow,
   Text,
-  Annotation,
-  SelectProperty,
-  Emoji,
-  FileObject,
-  LinkToPage,
-  Mention,
-  Reference,
+  ToDo,
+  Toggle,
+  Video,
 } from '../interfaces'
-// eslint-disable-next-line @typescript-eslint/no-var-requires
-import { Client, APIResponseError } from '@notionhq/client'
+import type * as requestParams from './request-params'
+import type * as responses from './responses'
 
 const client = new Client({
   auth: NOTION_API_SECRET,
@@ -172,7 +172,7 @@ export async function getPostsByTag(
 
   const allPosts = await getAllPosts()
   return allPosts
-    .filter((post) => post.Tags.find((tag) => tag.name === tagName))
+    .filter((post) => post.Tags?.find((tag) => tag.name === tagName))
     .slice(0, pageSize)
 }
 
@@ -201,7 +201,7 @@ export async function getPostsByTagAndPage(
 
   const allPosts = await getAllPosts()
   const posts = allPosts.filter((post) =>
-    post.Tags.find((tag) => tag.name === tagName)
+    post.Tags?.find((tag) => tag.name === tagName)
   )
 
   const startIndex = (page - 1) * NUMBER_OF_POSTS_PER_PAGE
@@ -221,7 +221,7 @@ export async function getNumberOfPages(): Promise<number> {
 export async function getNumberOfPagesByTag(tagName: string): Promise<number> {
   const allPosts = await getAllPosts()
   const posts = allPosts.filter((post) =>
-    post.Tags.find((tag) => tag.name === tagName)
+    post.Tags?.find((tag) => tag.name === tagName)
   )
   return (
     Math.floor(posts.length / NUMBER_OF_POSTS_PER_PAGE) +
@@ -366,9 +366,9 @@ export async function getAllTags(): Promise<SelectProperty[]> {
   return allPosts
     .flatMap((post) => post.Tags)
     .reduce((acc, tag) => {
-      if (!tagNames.includes(tag.name)) {
+      if (!tagNames.includes(tag?.name)) {
         acc.push(tag)
-        tagNames.push(tag.name)
+        tagNames.push(tag?.name)
       }
       return acc
     }, [] as SelectProperty[])
@@ -409,7 +409,12 @@ export async function downloadFile(url: URL) {
 
   let stream = res.data
 
-  if (res.headers['content-type'] === 'image/jpeg') {
+  if (
+    res.headers['content-type'] === 'image/jpeg' ||
+    res.headers['content-type'] === 'image/png' ||
+    res.headers['content-type'] === 'image/gif' ||
+    res.headers['content-type'] === 'image/webp'
+  ) {
     stream = stream.pipe(rotate)
   }
   try {
@@ -951,7 +956,7 @@ function _buildPost(pageObject: responses.PageObject): Post {
   if (pageObject.cover) {
     cover = {
       Type: pageObject.cover.type,
-      Url: pageObject.cover.external?.url || '',
+      Url: pageObject.cover.external?.url || pageObject.cover?.file?.url || '',
     }
   }
 

@@ -10,8 +10,8 @@
     "build:cached": "npm run cache:fetch && astro build",
     "preview": "astro preview",
     "astro": "astro",
-    "lint": "ESLINT_USE_FLAT_CONFIG=false eslint --ext .js,.ts,.astro src",
-    "format": "npx prettier --write .",
+    "lint": "biome check --write ./src",
+    "format": "biome format --write ./src",
     "cache:fetch": "node scripts/blog-contents-cache.cjs",
     "cache:purge": "nx reset && rm -f tmp/*",
     "_fetch-notion-blocks": "node scripts/retrieve-block-children.cjs"
@@ -44,6 +44,7 @@
     "tailwindcss": "^4.0.14"
   },
   "devDependencies": {
+    "@biomejs/biome": "1.9.4",
     "@nrwl/nx-cloud": "^19.1.0",
     "@types/async-retry": "^1.4.9",
     "@types/js-base64": "^3.3.1",

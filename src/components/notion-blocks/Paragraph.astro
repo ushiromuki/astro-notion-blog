@@ -1,8 +1,8 @@
 ---
 import * as interfaces from '../../lib/interfaces.ts'
 import { snakeToKebab } from '../../lib/style-helpers.ts'
-import RichText from './RichText.astro'
 import NotionBlocks from '../NotionBlocks.astro'
+import RichText from './RichText.astro'
 import '../../styles/notion-color.css'
 
 export interface Props {
@@ -21,7 +21,7 @@ const { block, headings } = Astro.props
   }
   {
     block.Paragraph.Children && (
-      <NotionBlocks blocks={block.Paragraph.Children} headings={headings} client:only="js"/>
+      <NotionBlocks blocks={block.Paragraph.Children} headings={headings} />
     )
   }
 </p>
