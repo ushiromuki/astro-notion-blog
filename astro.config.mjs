@@ -40,7 +40,7 @@ const getSite = function () {
 export default defineConfig({
   site: getSite(),
   base: BASE_PATH,
-  output: "server",
+  output: "static",
 
   integrations: [
     icon(),
