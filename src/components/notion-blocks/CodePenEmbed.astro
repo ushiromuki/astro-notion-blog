@@ -3,8 +3,9 @@ export interface Props {
   url: string
 }
 const { url } = Astro.props
-const user = url.pathname.split('/')[1]
-const id = url.pathname.split('/')[3]
+const urlObj = new URL(url)
+const user = urlObj.pathname.split('/')[1]
+const id = urlObj.pathname.split('/')[3]
 ---
 
 <p

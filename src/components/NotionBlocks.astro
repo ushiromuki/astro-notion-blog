@@ -1,8 +1,8 @@
 ---
 import {
-  buildURLToHTMLMap,
-  isAmazonURL,
-  isTweetURL,
+buildURLToHTMLMap,
+isAmazonURL,
+isTweetURL,
 } from '../lib/blog-helpers.ts'
 import * as interfaces from '../lib/interfaces.ts'
 import Bookmark from './notion-blocks/Bookmark.astro'
@@ -30,7 +30,7 @@ import Toggle from './notion-blocks/Toggle.astro'
 import Video from './notion-blocks/Video.astro'
 
 export interface Props {
-  blocks: interfaces.Block[]
+  blocks: (interfaces.Block | interfaces.List)[]
   isRoot: boolean
   level: number
   headings: interfaces.Block[]
@@ -43,13 +43,13 @@ const {
   headings: rawHeadings = [],
 } = Astro.props
 
-const blocks = rawBlocks.reduce((arr, block: interfaces.Block, i: number) => {
+const blocks = rawBlocks.reduce<(interfaces.Block | interfaces.List)[]>((arr, currentBlock, i: number) => {
+  const block = currentBlock as interfaces.Block
   const isBulletedListItem = block.Type === 'bulleted_list_item'
   const isNumberedListItem = block.Type === 'numbered_list_item'
   const isToDo = block.Type === 'to_do'
-
   if (!isBulletedListItem && !isNumberedListItem && !isToDo) {
-    return arr.concat(block)
+    return [...arr, block]
   }
 
   let listType = ''
@@ -83,40 +83,71 @@ const blocks = rawBlocks.reduce((arr, block: interfaces.Block, i: number) => {
     return arr.concat(list)
   }
 
-  prevList.ListItems.push(block)
+  // prevList が List 型であることを確認してから ListItems にアクセス
+  if ('ListItems' in prevList) {
+    prevList.ListItems.push(block)
+  }
 
   return arr
 }, [])
 
 let headings = rawHeadings
 if (isRoot) {
-  headings = blocks.filter((b: interfaces.Block) =>
-    ['heading_1', 'heading_2', 'heading_3'].includes(b.Type)
-  )
+  // blocks配列から型ガードを使用してBlockのみを抽出
+  const blockItems = blocks
+    .filter((item): item is interfaces.Block => 
+      'Id' in item && 
+      'HasChildren' in item &&
+      ['heading_1', 'heading_2', 'heading_3'].includes(item.Type)
+    )
+  
+  headings = blockItems
 }
 
-const bookmarkURLs = blocks
-  .filter((b: interfaces.Block) =>
-    ['bookmark', 'link_preview', 'embed'].includes(b.Type)
+// bookmarkURLs用の型ガードを使用
+const blockItems = blocks
+  .filter((item): item is interfaces.Block => 
+    'Id' in item && 
+    'HasChildren' in item &&
+    ['bookmark', 'link_preview', 'embed'].includes(item.Type)
   )
-  .map((b: interfaces.Block) => {
-    const urlString = (b.Bookmark || b.LinkPreview || b.Embed).Url
 
-    let url: URL
+const bookmarkURLs = blockItems
+  .map((block) => {
+    const urlString = (block.Bookmark || block.LinkPreview || block.Embed)?.Url || ''
+
+    let url: URL | undefined
     try {
       url = new URL(urlString)
     } catch (err) {
       console.log(err)
+      url = undefined
     }
     return url
   })
-  .filter((url: URL) => url && !isTweetURL(url) && !isAmazonURL(url))
+  .filter((url): url is URL => url !== undefined && !isTweetURL(url) && !isAmazonURL(url))
 
 const bookmarkURLMap = await buildURLToHTMLMap(bookmarkURLs)
 ---
 
 {
-  blocks.map((block: interfaces.Block) => {
+  blocks.map((item) => {
+    // Listの場合
+    if ('ListItems' in item) {
+      const block = item
+      switch (block.Type) {
+        case 'bulleted_list':
+          return <BulletedListItems block={block} headings={headings} />
+        case 'numbered_list':
+          return <NumberedListItems block={block} level={level} headings={headings} />
+        case 'to_do_list':
+          return <ToDo block={block} headings={headings} />
+      }
+      return null
+    }
+
+    // Blockの場合
+    const block = item
     switch (block.Type) {
       case 'paragraph':
         return <Paragraph block={block} headings={headings} />

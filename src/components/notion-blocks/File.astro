@@ -11,33 +11,31 @@ const { block } = Astro.props
 
 let url: URL
 try {
-  url = new URL(block.File?.External?.Url || block.File?.File?.Url)
+  url = new URL(block.File?.External?.Url || block.File?.File?.Url || '')
 } catch (err) {
   console.error(`Invalid file URL. error: ${err}`)
+  url = new URL('https://example.com/unknown')
 }
 
-const filename = decodeURIComponent(url.pathname.split('/').slice(-1)[0])
+// エラー時はデフォルトのファイル名を設定
+const filename = url.pathname ? decodeURIComponent(url.pathname.split('/').slice(-1)[0]) : 'Unknown file'
 ---
 
 <div class="file">
   <div>
-    {
-      url && (
-        <a
-          href={block.File.External ? url.String() : filePath(url)}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <img
-            src="https://www.notion.so/icons/document_gray.svg"
-            alt="File icon in a file block"
-          />{' '}
-          {filename}
-        </a>
-      )
-    }
+    <a
+      href={block.File?.External ? url.toString() : filePath(url)}
+      target="_blank"
+      rel="noopener noreferrer"
+    >
+      <img
+        src="https://www.notion.so/icons/document_gray.svg"
+        alt="File icon in a file block"
+      />{' '}
+      {filename}
+    </a>
   </div>
-  <Caption richTexts={block.File.Caption} />
+  <Caption richTexts={block.File?.Caption || []} />
 </div>
 
 <style>

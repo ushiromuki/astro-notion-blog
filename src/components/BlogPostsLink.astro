@@ -1,6 +1,6 @@
 ---
 import { getPostLink } from '../lib/blog-helpers.ts'
-import { Post } from '../lib/interfaces.ts'
+import type { Post } from '../lib/interfaces.ts'
 import NoContents from './NoContents.astro'
 
 export interface Props {
@@ -22,14 +22,14 @@ const { heading, posts } = Astro.props
           <li>
             <a
               href={getPostLink(post.Slug)}
-              title={`${post.Icon?.Emoji || ''}${post.Title}`}
+              title={`${post.Icon && post.Icon.Type === 'emoji' && 'Emoji' in post.Icon ? post.Icon.Emoji : ''}${post.Title}`}
             >
-              {post.Icon && post.Icon.Type === 'emoji' ? (
+              {post.Icon && post.Icon.Type === 'emoji' && 'Emoji' in post.Icon ? (
                 <>
                   <span>{post.Icon.Emoji}</span>
                   {post.Title}
                 </>
-              ) : post.Icon && post.Icon.Type === 'external' ? (
+              ) : post.Icon && post.Icon.Type === 'external' && 'Url' in post.Icon ? (
                 <>
                   <img
                     src={post.Icon.Url}

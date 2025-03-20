@@ -1,3 +1,11 @@
+/**
+ * @file Notion API レスポンス型定義
+ * @description Notion APIから返されるレスポンスの型定義を行います。
+ * このファイルではAPIからの生のレスポンス形式を定義し、アプリケーションで使用するモデル型とのマッピングを提供します。
+ */
+
+import type * as model from './model'
+
 // Query a database response
 // https://developers.notion.com/reference/post-database-query
 export interface QueryDatabaseResponse {
@@ -460,4 +468,57 @@ interface Table {
 
 interface TableRow {
   cells: RichTextObject[][]
+}
+
+/**
+ * APIレスポンスとアプリケーションモデル間の変換ユーティリティ関数
+ */
+export const mappers = {
+  /**
+   * Notion APIのRichTextObjectからアプリケーションのRichTextモデルに変換します
+   * @param richTextObject - Notion APIのリッチテキストオブジェクト
+   * @returns アプリケーションのRichTextモデル
+   */
+  toRichText(richTextObject: RichTextObject): model.RichText {
+    return {
+      PlainText: richTextObject.plain_text,
+      Annotation: {
+        Bold: richTextObject.annotations.bold,
+        Italic: richTextObject.annotations.italic,
+        Strikethrough: richTextObject.annotations.strikethrough,
+        Underline: richTextObject.annotations.underline,
+        Code: richTextObject.annotations.code,
+        Color: richTextObject.annotations.color,
+      },
+      Href: richTextObject.href,
+      Text: richTextObject.text ? {
+        Content: richTextObject.text.content,
+        Link: richTextObject.text.link ? {
+          Url: richTextObject.text.link.url,
+        } : undefined,
+      } : undefined,
+      Equation: richTextObject.equation ? {
+        Expression: richTextObject.equation.expression,
+      } : undefined,
+      Mention: richTextObject.mention?.page ? {
+        Type: richTextObject.mention.type as model.Mention['Type'],
+        Page: {
+          Id: richTextObject.mention.page.id,
+        },
+      } : undefined,
+    }
+  },
+
+  /**
+   * Notion APIのSelectPropertyからアプリケーションのSelectPropertyモデルに変換します
+   * @param selectProperty - Notion APIの選択プロパティ
+   * @returns アプリケーションのSelectPropertyモデル
+   */
+  toSelectProperty(selectProperty: SelectProperty): model.SelectProperty {
+    return {
+      id: selectProperty.id,
+      name: selectProperty.name,
+      color: selectProperty.color,
+    }
+  },
 }

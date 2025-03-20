@@ -3,8 +3,8 @@ import { pipeline } from 'node:stream/promises'
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 import { APIResponseError, Client } from '@notionhq/client'
 import retry from 'async-retry'
-import axios from 'axios'
 import type { AxiosResponse } from 'axios'
+import axios from 'axios'
 import ExifTransformer from 'exif-be-gone'
 import sharp from 'sharp'
 import {
@@ -52,7 +52,7 @@ import type {
   ToDo,
   Toggle,
   Video,
-} from '../interfaces'
+} from './model'
 import type * as requestParams from './request-params'
 import type * as responses from './responses'
 
@@ -103,7 +103,8 @@ export async function getAllPosts(): Promise<Post[]> {
       async (bail) => {
         try {
           return (await client.databases.query(
-            params as any // eslint-disable-line @typescript-eslint/no-explicit-any
+            // biome-ignore lint/suspicious/noExplicitAny: 外部APIはanyを許可
+            params as any
           )) as responses.QueryDatabaseResponse
         } catch (error: unknown) {
           if (error instanceof APIResponseError) {
@@ -244,7 +245,8 @@ export async function getAllBlocksByBlockId(blockId: string): Promise<Block[]> {
         async (bail) => {
           try {
             return (await client.blocks.children.list(
-              params as any // eslint-disable-line @typescript-eslint/no-explicit-any
+              // biome-ignore lint/suspicious/noExplicitAny: 外部APIはanyを許可
+              params as any
             )) as responses.RetrieveBlockChildrenResponse
           } catch (error: unknown) {
             if (error instanceof APIResponseError) {
@@ -340,7 +342,8 @@ export async function getBlock(blockId: string): Promise<Block> {
     async (bail) => {
       try {
         return (await client.blocks.retrieve(
-          params as any // eslint-disable-line @typescript-eslint/no-explicit-any
+          // biome-ignore lint/suspicious/noExplicitAny: 外部APIはanyを許可
+          params as any
         )) as responses.RetrieveBlockResponse
       } catch (error: unknown) {
         if (error instanceof APIResponseError) {
@@ -366,9 +369,9 @@ export async function getAllTags(): Promise<SelectProperty[]> {
   return allPosts
     .flatMap((post) => post.Tags)
     .reduce((acc, tag) => {
-      if (!tagNames.includes(tag?.name)) {
+      if (tag && !tagNames.includes(tag.name)) {
         acc.push(tag)
-        tagNames.push(tag?.name)
+        tagNames.push(tag.name)
       }
       return acc
     }, [] as SelectProperty[])
@@ -439,7 +442,8 @@ export async function getDatabase(): Promise<Database> {
     async (bail) => {
       try {
         return (await client.databases.retrieve(
-          params as any // eslint-disable-line @typescript-eslint/no-explicit-any
+          // biome-ignore lint/suspicious/noExplicitAny: 外部APIはanyを許可
+          params as any
         )) as responses.RetrieveDatabaseResponse
       } catch (error: unknown) {
         if (error instanceof APIResponseError) {
@@ -794,7 +798,8 @@ async function _getTableRows(blockId: string): Promise<TableRow[]> {
         async (bail) => {
           try {
             return (await client.blocks.children.list(
-              params as any // eslint-disable-line @typescript-eslint/no-explicit-any
+              // biome-ignore lint/suspicious/noExplicitAny: 外部APIはanyを許可
+              params as any
             )) as responses.RetrieveBlockChildrenResponse
           } catch (error: unknown) {
             if (error instanceof APIResponseError) {
@@ -859,7 +864,8 @@ async function _getColumns(blockId: string): Promise<Column[]> {
         async (bail) => {
           try {
             return (await client.blocks.children.list(
-              params as any // eslint-disable-line @typescript-eslint/no-explicit-any
+              // biome-ignore lint/suspicious/noExplicitAny: 外部APIはanyを許可
+              params as any
             )) as responses.RetrieveBlockChildrenResponse
           } catch (error: unknown) {
             if (error instanceof APIResponseError) {

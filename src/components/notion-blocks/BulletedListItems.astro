@@ -1,12 +1,12 @@
 ---
 import * as interfaces from '../../lib/interfaces.ts'
 import { snakeToKebab } from '../../lib/style-helpers.ts'
+import '../../styles/notion-color.css'
 import NotionBlocks from '../NotionBlocks.astro'
 import RichText from './RichText.astro'
-import '../../styles/notion-color.css'
 
 export interface Props {
-  block: interfaces.Block
+  block: interfaces.Block | interfaces.List
   headings: interfaces.Block[]
 }
 
@@ -15,7 +15,7 @@ const { block, headings } = Astro.props
 
 <ul>
   {
-    block.ListItems.filter(
+    ('ListItems' in block ? block.ListItems : []).filter(
       (b: interfaces.Block) => b.Type === 'bulleted_list_item'
     ).map((b: interfaces.Block) => (
       <li class={snakeToKebab(b.BulletedListItem.Color)}>

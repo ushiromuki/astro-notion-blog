@@ -1,6 +1,5 @@
 ---
 export const prerender = true
-import BlogPostsLink from '../../../components/BlogPostsLink.astro'
 import BlogTagsLink from '../../../components/BlogTagsLink.astro'
 import NoContents from '../../../components/NoContents.astro'
 import Pagination from '../../../components/Pagination.astro'
@@ -12,9 +11,9 @@ import PostTitle from '../../../components/PostTitle.astro'
 import ReadMoreLink from '../../../components/ReadMoreLink.astro'
 import Layout from '../../../layouts/Layout.astro'
 import {
-  getAllTags,
-  getNumberOfPages,
-  getPostsByPage,
+getAllTags,
+getNumberOfPages,
+getPostsByPage,
 } from '../../../lib/notion/client'
 import styles from '../../../styles/blog.module.css'
 
@@ -48,10 +47,10 @@ const [posts, tags, numberOfPages] = await Promise.all([
         <NoContents contents={posts} />
       ) : (
         posts.map((post) => (
-          <div class={styles.post} key={post.Slug}>
+          <div class={styles.post}>
             <PostDate post={post} />
-            <PostTags post={post} />
-            <PostTitle post={post} />
+            <PostTags post={post} enableLink={false} />
+            <PostTitle post={post} enableLink={false} />
             <PostFeaturedImage post={post} />
             <PostExcerpt post={post} />
             <ReadMoreLink post={post} />
@@ -64,6 +63,7 @@ const [posts, tags, numberOfPages] = await Promise.all([
       <Pagination
         currentPage={parseInt(page, 10)}
         numberOfPages={numberOfPages}
+        tag={''}
       />
     </footer>
   </div>

@@ -9,21 +9,21 @@ import PostTags from '../../components/PostTags.astro'
 import PostTitle from '../../components/PostTitle.astro'
 import Layout from '../../layouts/Layout.astro'
 import {
-  extractTargetBlocks,
-  filePath,
-  getPostLink,
+extractTargetBlocks,
+filePath,
+getPostLink,
 } from '../../lib/blog-helpers'
 import * as interfaces from '../../lib/interfaces'
 import {
-  downloadFile,
-  getAllBlocksByBlockId,
-  getAllPosts,
-  getAllTags,
-  getBlock,
-  getPostBySlug,
-  getPosts,
-  getPostsByTag,
-  getRankedPosts,
+downloadFile,
+getAllBlocksByBlockId,
+getAllPosts,
+getAllTags,
+getBlock,
+getPostBySlug,
+getPosts,
+getPostsByTag,
+getRankedPosts,
 } from '../../lib/notion/client'
 import styles from '../../styles/blog.module.css'
 
@@ -46,7 +46,7 @@ const [blocks, allPosts, rankedPosts, recentPosts, tags, postsHavingSameTag] =
     getRankedPosts(),
     getPosts(5),
     getAllTags(),
-    getPostsByTag(post.Tags[0]?.name, 6),
+    getPostsByTag(post.Tags?.[0]?.name || '', 6),
   ])
 
 const fileAtacchedBlocks = extractTargetBlocks('image', blocks)
@@ -63,7 +63,11 @@ const fileAtacchedBlocks = extractTargetBlocks('image', blocks)
 await Promise.all(
   fileAtacchedBlocks
     .map(async (block) => {
-      const expiryTime = (block.Image || block.File).File.ExpiryTime
+      const imageOrFile = block.Image || block.File
+      if (!imageOrFile?.File?.ExpiryTime) {
+        return getBlock(block.Id)
+      }
+      const expiryTime = imageOrFile.File.ExpiryTime
       if (Date.parse(expiryTime) > Date.now()) {
         return Promise.resolve(block)
       }
@@ -73,7 +77,7 @@ await Promise.all(
       promise.then((block) => {
         let url!: URL
         try {
-          url = new URL((block.Image || block.File).File.Url)
+          url = new URL((block.Image || block.File)?.File?.Url || '')
         } catch {
           console.log(
             'Invalid file URL: ',
@@ -93,23 +97,22 @@ const nextPost = allPosts[currentPostIndex - 1]
 
 // 自動生成に変更
 let ogImage = ''
-ogImage = new URL(`/og/${post.Slug}.png`, Astro.site)
+ogImage = new URL(`/og/${post.Slug}.png`, Astro.site).toString()
 
 // cover image 追加
 let pageCoverImage = ''
-console.log(post)
 if (post.Cover && post.Cover.Url) {
   if (import.meta.env.DEV) {
     pageCoverImage = post.Cover.Url
   } else {
-    pageCoverImage = new URL(filePath(new URL(post.Cover.Url)), Astro.site)
+    pageCoverImage = new URL(filePath(new URL(post.Cover.Url)), Astro.site).toString()
   }
 }
 ---
 
 <Layout
   title={post.Title}
-  description={post.Excerpt}
+  description={post.Excerpt || ''}
   path={getPostLink(post.Slug)}
   ogImage={ogImage}
   pageCoverImage={pageCoverImage}
@@ -117,10 +120,10 @@ if (post.Cover && post.Cover.Url) {
   <div slot="main" class={styles.main}>
     <div class={styles.post}>
       <PostDate post={post} />
-      <PostTags post={post} />
+      <PostTags post={post} enableLink={false} />
       <PostTitle post={post} enableLink={false} />
       <PostBody blocks={blocks} />
-      <PostTags post={post} />
+      <PostTags post={post} enableLink={false}/>
 
       <footer>
         <PostRelativeLink prevPost={prevPost} nextPost={nextPost} />

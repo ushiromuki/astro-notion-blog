@@ -2,7 +2,6 @@
 
 export const prerender = true
 
-import BlogPostsLink from '../../../components/BlogPostsLink.astro'
 import BlogTagsLink from '../../../components/BlogTagsLink.astro'
 import NoContents from '../../../components/NoContents.astro'
 import Pagination from '../../../components/Pagination.astro'
@@ -15,9 +14,9 @@ import ReadMoreLink from '../../../components/ReadMoreLink.astro'
 import Layout from '../../../layouts/Layout.astro'
 import type { SelectProperty } from '../../../lib/interfaces.ts'
 import {
-  getAllTags,
-  getNumberOfPagesByTag,
-  getPostsByTag,
+getAllTags,
+getNumberOfPagesByTag,
+getPostsByTag,
 } from '../../../lib/notion/client.ts'
 import { NUMBER_OF_POSTS_PER_PAGE } from '../../../server-constants.ts'
 import styles from '../../../styles/blog.module.css'
@@ -52,10 +51,10 @@ const currentTag = posts[0].Tags?.find((t) => t.name === tag)
         <NoContents contents={posts} />
       ) : (
         posts.map((post) => (
-          <div class={styles.post} key={post.Slug}>
+          <div class={styles.post}>
             <PostDate post={post} />
-            <PostTags post={post} />
-            <PostTitle post={post} />
+            <PostTags post={post} enableLink={false} />
+            <PostTitle post={post} enableLink={false} />
             <PostFeaturedImage post={post} />
             <PostExcerpt post={post} />
             <ReadMoreLink post={post} />
