@@ -20,7 +20,7 @@ const { richText } = Astro.props
 <Anchor richText={richText}>
   {
     (
-      <Code richText={richText}>
+      <Code richText={richText} client:only="react">
         {
           <Color richText={richText}>
             {

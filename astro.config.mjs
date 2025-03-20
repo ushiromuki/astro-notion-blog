@@ -1,4 +1,5 @@
 import cloudflare from '@astrojs/cloudflare';
+import react from '@astrojs/react';
 import icon from 'astro-icon';
 import { defineConfig, passthroughImageService } from 'astro/config';
 import CoverImageDownloader from './src/integrations/cover-image-downloader';
@@ -40,7 +41,7 @@ const getSite = function () {
 export default defineConfig({
   site: getSite(),
   base: BASE_PATH,
-  output: "static",
+  output: "server",
 
   integrations: [
     icon(),
@@ -49,6 +50,7 @@ export default defineConfig({
     FeaturedImageDownloader(),
     pageCoverImageDownloader(),
     PublicNotionCopier(),
+    react(),
   ],
 
   vite: {

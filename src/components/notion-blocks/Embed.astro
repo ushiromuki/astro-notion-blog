@@ -1,10 +1,10 @@
 ---
 import {
-  isCodePenURL,
-  isInstagramURL,
-  isPinterestURL,
-  isTikTokURL,
-  isTweetURL,
+isCodePenURL,
+isInstagramURL,
+isPinterestURL,
+isTikTokURL,
+isTweetURL,
 } from '../../lib/blog-helpers.ts'
 import * as interfaces from '../../lib/interfaces.ts'
 import Bookmark from './Bookmark.astro'
@@ -40,7 +40,7 @@ try {
     ) : isPinterestURL(url) ? (
       <PinterestEmbed url={url} />
     ) : isCodePenURL(url) ? (
-      <CodePenEmbed url={url} />
+      <CodePenEmbed url={url} client:only="react"/>
     ) : (
       <Bookmark block={block} urlMap={urlMap} />
     )
