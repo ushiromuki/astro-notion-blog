@@ -1,4 +1,5 @@
 import cloudflare from '@astrojs/cloudflare';
+import react from '@astrojs/react';
 import icon from 'astro-icon';
 import { defineConfig, passthroughImageService } from 'astro/config';
 import CoverImageDownloader from './src/integrations/cover-image-downloader';
@@ -43,6 +44,7 @@ export default defineConfig({
   output: "static",
 
   integrations: [
+    react(),
     icon(),
     CoverImageDownloader(),
     CustomIconDownloader(),
