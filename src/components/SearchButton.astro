@@ -34,14 +34,16 @@ import { Icon } from 'astro-icon/components'
 </style>
 
 <script>
-  document.addEventListener('DOMContentLoaded', () => {
-    function handleKeydown(event) {
-      if (event.keyCode === 75 && event.metaKey) {
-        // Ctrl+K or Cmd+K
-        document.querySelector('.open-search-modal').click()
+  if (typeof document !== 'undefined') {
+    document.addEventListener('DOMContentLoaded', () => {
+      function handleKeydown(event) {
+        if (event.keyCode === 75 && event.metaKey) {
+          // Ctrl+K or Cmd+K
+          document.querySelector('.open-search-modal').click()
+        }
       }
-    }
 
-    document.addEventListener('keydown', handleKeydown)
-  })
+        document.addEventListener('keydown', handleKeydown)
+      })
+  }
 </script>

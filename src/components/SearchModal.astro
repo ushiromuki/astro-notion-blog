@@ -101,6 +101,7 @@
 </style>
 
 <script>
+  if (typeof document !== 'undefined') {
   document.addEventListener('DOMContentLoaded', async () => {
     let feedItems = []
     let fetched = false
@@ -283,6 +284,7 @@
     document
       .getElementsByClassName('overlay')[0]
       .addEventListener('click', closeModal)
-    document.addEventListener('keydown', handleKeydown)
-  })
+      document.addEventListener('keydown', handleKeydown)
+    })
+  }
 </script>

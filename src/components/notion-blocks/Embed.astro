@@ -40,7 +40,7 @@ try {
     ) : isPinterestURL(url) ? (
       <PinterestEmbed url={url} />
     ) : isCodePenURL(url) ? (
-      <CodePenEmbed url={url} client:only="react"/>
+      <CodePenEmbed url={url}/>
     ) : (
       <Bookmark block={block} urlMap={urlMap} />
     )
