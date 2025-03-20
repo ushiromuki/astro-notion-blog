@@ -1,6 +1,5 @@
-import cloudflare from '@astrojs/cloudflare';
 import icon from 'astro-icon';
-import { defineConfig, passthroughImageService } from 'astro/config';
+import { defineConfig } from 'astro/config';
 import CoverImageDownloader from './src/integrations/cover-image-downloader';
 import CustomIconDownloader from './src/integrations/custom-icon-downloader';
 import FeaturedImageDownloader from './src/integrations/featured-image-downloader';
@@ -76,8 +75,5 @@ export default defineConfig({
       ],
       noExternal: ['prismjs', 'katex']
     },
-  },
-  adapter: cloudflare({
-    imageService: passthroughImageService()
-  }),
+  }
 });
