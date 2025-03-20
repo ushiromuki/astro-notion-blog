@@ -1,12 +1,12 @@
-import { defineConfig, passthroughImageService} from 'astro/config';
+import cloudflare from '@astrojs/cloudflare';
 import icon from 'astro-icon';
-import { CUSTOM_DOMAIN, BASE_PATH } from './src/server-constants';
+import { defineConfig, passthroughImageService } from 'astro/config';
 import CoverImageDownloader from './src/integrations/cover-image-downloader';
 import CustomIconDownloader from './src/integrations/custom-icon-downloader';
 import FeaturedImageDownloader from './src/integrations/featured-image-downloader';
-import PublicNotionCopier from './src/integrations/public-notion-copier';
 import pageCoverImageDownloader from './src/integrations/page-cover-image-downloader';
-import cloudflare from '@astrojs/cloudflare';
+import PublicNotionCopier from './src/integrations/public-notion-copier';
+import { BASE_PATH, CUSTOM_DOMAIN } from './src/server-constants';
 
 import tailwindcss from '@tailwindcss/vite';
 
@@ -40,7 +40,7 @@ const getSite = function () {
 export default defineConfig({
   site: getSite(),
   base: BASE_PATH,
-  output: 'server',
+  output: "static",
 
   integrations: [
     icon(),
