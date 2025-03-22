@@ -1,48 +1,137 @@
 ---
+export const prerender = true
+import type * as interfaces from '../../lib/interfaces.ts'
+import Caption from './Caption.astro'
+
+// 必要なURLチェック関数のみをインポート
 import {
 isCodePenURL,
 isInstagramURL,
 isPinterestURL,
-isTikTokURL,
 isTweetURL,
 } from '../../lib/blog-helpers.ts'
-import * as interfaces from '../../lib/interfaces.ts'
-import Bookmark from './Bookmark.astro'
-import CodePenEmbed from './CodePenEmbed.astro'
-import InstagramEmbed from './InstagramEmbed.astro'
-import PinterestEmbed from './PinterestEmbed.astro'
-import TikTokEmbed from './TikTokEmbed.astro'
-import TweetEmbed from './TweetEmbed.astro'
 
 export interface Props {
   block: interfaces.Block
-  urlMap: { [key: string]: string }
 }
 
-const { block, urlMap } = Astro.props
+const { block } = Astro.props
+let urlString = ''
 
-let url: URL
+// 安全に値を取得
 try {
-  url = new URL(block.Embed.Url)
+  if (block.Embed?.Url) {
+    urlString = block.Embed.Url.toString()
+  }
 } catch (err) {
-  console.log(err)
+  console.error('URLの解析に失敗しました:', err)
 }
+
+// URLの解析を安全に行う
+let url: URL | null = null
+try {
+  if (urlString) {
+    url = new URL(urlString)
+  }
+} catch(err) {
+  // URLの解析に失敗した場合はnullのまま
+}
+
+// シンプルな埋め込み処理
+let embedType = 'default'
+let videoId = ''
+
+// YouTubeの場合
+if (url && (url.hostname.includes('youtube.com') || url.hostname.includes('youtu.be'))) {
+  embedType = 'youtube'
+  if (url.searchParams.has('v')) {
+    videoId = url.searchParams.get('v') || ''
+  } else if (url.hostname.includes('youtu.be')) {
+    videoId = url.pathname.substring(1)
+  }
+}
+// Instagram
+else if (url && isInstagramURL(url)) {
+  embedType = 'instagram'
+}
+// Pinterest
+else if (url && isPinterestURL(url)) {
+  embedType = 'pinterest'
+}
+// Twitter/X
+else if (url && isTweetURL(url)) {
+  embedType = 'tweet'
+}
+// CodePen
+else if (url && isCodePenURL(url)) {
+  embedType = 'codepen'
+}
+
+// 安全にキャプションを取得
+const caption = block.Embed?.Caption || []
 ---
 
-{
-  url ? (
-    isTweetURL(url) ? (
-      <TweetEmbed url={url} />
-    ) : isTikTokURL(url) ? (
-      <TikTokEmbed url={url} />
-    ) : isInstagramURL(url) ? (
-      <InstagramEmbed url={url} />
-    ) : isPinterestURL(url) ? (
-      <PinterestEmbed url={url} />
-    ) : isCodePenURL(url) ? (
-      <CodePenEmbed url={url}/>
-    ) : (
-      <Bookmark block={block} urlMap={urlMap} />
-    )
-  ) : null
-}
+{url && (
+  <div class="embed">
+    <div>
+      {embedType === 'youtube' && videoId && (
+        <iframe 
+          width="560" 
+          height="315" 
+          src={`https://www.youtube.com/embed/${videoId}`} 
+          title="YouTube video player" 
+          frameborder="0" 
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+          allowfullscreen
+        ></iframe>
+      )}
+      {embedType === 'instagram' && (
+        <div style="display: flex; justify-content: center;">
+          <blockquote 
+            class="instagram-media" 
+            data-instgrm-permalink={url.toString()}
+            style="max-width: 500px; width: 100%; border: 1px solid #ddd; border-radius: 3px; box-shadow: 0 0 1px 0 rgba(0,0,0,0.5); margin: 1px; padding: 0;"
+          >
+            <a href={url.toString()} target="_blank">このコンテンツはInstagramで表示されます</a>
+          </blockquote>
+          <script async src="//www.instagram.com/embed.js"></script>
+        </div>
+      )}
+      {embedType === 'codepen' && (
+        <iframe
+          height="300"
+          style="width: 100%;"
+          scrolling="no"
+          title="CodePen Embed"
+          src={`https://codepen.io/embed/${urlString.split('/').pop()}?default-tab=html,result`}
+          frameborder="no"
+          loading="lazy"
+          allowtransparency="true"
+          allowfullscreen="true"
+        >
+          CodePen Embed
+        </iframe>
+      )}
+      {embedType === 'default' && (
+        <div class="default-embed">
+          <a href={urlString} target="_blank" rel="noopener noreferrer">{urlString}</a>
+        </div>
+      )}
+    </div>
+    {caption.length > 0 && <Caption richTexts={caption} />}
+  </div>
+)}
+
+<style>
+  .embed {
+    margin: 1em 0;
+    max-width: 100%;
+    overflow: hidden;
+  }
+  .default-embed {
+    padding: 1em;
+    border: 1px solid #eee;
+    border-radius: 5px;
+    word-break: break-all;
+  }
+</style>

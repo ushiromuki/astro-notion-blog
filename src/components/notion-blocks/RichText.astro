@@ -1,14 +1,14 @@
 ---
 import katex from 'katex'
-import { RichText } from '../../lib/interfaces.ts'
-import Mention from './Mention.astro'
-import Anchor from './annotations/Anchor.astro'
-import Bold from './annotations/Bold.astro'
-import Code from './annotations/Code.astro'
-import Color from './annotations/Color.astro'
-import Italic from './annotations/Italic.astro'
-import Strikethrough from './annotations/Strikethrough.astro'
-import Underline from './annotations/Underline.astro'
+import type { RichText } from '../../lib/interfaces.ts'
+import Mention from './Mention'
+import Anchor from './annotations/Anchor'
+import Bold from './annotations/Bold'
+import Code from './annotations/Code'
+import Color from './annotations/Color'
+import Italic from './annotations/Italic'
+import Strikethrough from './annotations/Strikethrough'
+import Underline from './annotations/Underline'
 
 export interface Props {
   richText: RichText
@@ -17,45 +17,36 @@ export interface Props {
 const { richText } = Astro.props
 ---
 
-<Anchor richText={richText}>
+<Anchor richText={richText} client:only="react">
   {
     (
-      <Code richText={richText}>
+      <Code richText={richText} client:only="react">
         {
-          <Color richText={richText}>
+          <Color richText={richText} client:only="react">
             {
-              <Underline richText={richText}>
+              <Underline richText={richText} client:only="react">
                 {
-                  <Strikethrough richText={richText}>
+                  <Strikethrough richText={richText} client:only="react">
                     {
-                      <Italic richText={richText}>
+                      <Italic richText={richText} client:only="react">
                         {
-                          <Bold richText={richText}>
-                            {richText.Text &&
-                              richText.Text.Content.split('\n').map(
-                                (content: string, i: number) => {
-                                  if (i === 0) {
-                                    return content
-                                  }
-                                  return (
-                                    <>
-                                      <br />
-                                      {content}
-                                    </>
-                                  )
-                                }
-                              )}
-                            {richText.Equation && (
-                              <span
-                                set:html={katex.renderToString(
-                                  richText.Equation.Expression,
-                                  { throwOnError: false }
-                                )}
-                              />
-                            )}
-                            {richText.Mention && richText.Mention.Page && (
-                              <Mention pageId={richText.Mention.Page.Id} />
-                            )}
+                          <Bold richText={richText} client:only="react">
+                            {
+                              richText.Text ? 
+                                richText.Text.Content :
+                              richText.Mention ? 
+                                <Mention richText={richText} client:only="react" /> :
+                              richText.Equation ? 
+                                <span
+                                  set:html={katex.renderToString(richText.Equation.Expression, {
+                                    throwOnError: false,
+                                    output: 'html',
+                                  })}
+                                /> :
+                              richText.Href ? 
+                                richText.Href : 
+                                '　'
+                            }
                           </Bold>
                         }
                       </Italic>

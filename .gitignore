@@ -30,3 +30,4 @@ public/notion/*
 !public/notion/.gitkeep
 
 .pnpm-store
+.dev.vars

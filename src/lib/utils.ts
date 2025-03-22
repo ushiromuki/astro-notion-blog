@@ -8,8 +8,8 @@ export const pathJoin = (path: string, subPath: string) => {
       .join('/')
   )
 }
-export const chunkArray = (array: [], size: number) => {
-  const result = []
+export const chunkArray = <T>(array: T[], size: number): T[][] => {
+  const result: T[][] = []
   for (let i = 0; i < array.length; i += size) {
     result.push(array.slice(i, i + size))
   }

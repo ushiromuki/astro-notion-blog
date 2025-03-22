@@ -10,8 +10,7 @@ import sharp from 'sharp'
 import {
   DATABASE_ID,
   NOTION_API_SECRET,
-  NUMBER_OF_POSTS_PER_PAGE,
-  REQUEST_TIMEOUT_MS,
+  NUMBER_OF_POSTS_PER_PAGE
 } from '../../server-constants'
 import type {
   Annotation,
@@ -386,22 +385,27 @@ export async function downloadFile(url: URL) {
     res = await axios({
       method: 'get',
       url: url.toString(),
-      timeout: REQUEST_TIMEOUT_MS,
+      timeout: 30000,
       responseType: 'stream',
+      maxRedirects: 5,
+      maxContentLength: 50 * 1024 * 1024,
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
+      },
     })
-  } catch (err) {
-    console.log(err)
+  } catch (err: any) {
+    console.error('Axios request failed:', err.message || String(err))
     return Promise.resolve()
   }
 
   if (!res || res.status != 200) {
-    console.log(res)
+    console.log('Invalid response:', res?.status)
     return Promise.resolve()
   }
 
   const dir = './public/notion/' + url.pathname.split('/').slice(-2)[0]
   if (!fs.existsSync(dir)) {
-    fs.mkdirSync(dir)
+    fs.mkdirSync(dir, { recursive: true })
   }
 
   const filename = decodeURIComponent(url.pathname.split('/').slice(-1)[0])
@@ -422,8 +426,8 @@ export async function downloadFile(url: URL) {
   }
   try {
     return pipeline(stream, new ExifTransformer(), writeStream)
-  } catch (err) {
-    console.log(err)
+  } catch (err: any) {
+    console.error('Pipeline error:', err.message || String(err))
     writeStream.end()
     return Promise.resolve()
   }

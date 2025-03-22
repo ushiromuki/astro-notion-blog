@@ -1,8 +1,9 @@
 ---
 export interface Props {
-  url: URL
+  url: URL | string
 }
-const { url } = Astro.props
+const { url: urlProp } = Astro.props
+const url = typeof urlProp === 'string' ? new URL(urlProp) : urlProp;
 const user = url.pathname.split('/')[1]
 const videoId = url.pathname.split('/')[3]
 ---
@@ -18,7 +19,7 @@ const videoId = url.pathname.split('/')[3]
       <a
         target="_blank"
         title={user}
-        href="https://www.tiktok.com/{user}?refer=embed">{user}</a
+        href={`https://www.tiktok.com/${user}?refer=embed`}>{user}</a
       >
     </section>
   </blockquote>

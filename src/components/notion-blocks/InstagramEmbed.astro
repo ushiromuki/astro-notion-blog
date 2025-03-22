@@ -1,8 +1,9 @@
 ---
 export interface Props {
-  url: URL
+  url: URL | string
 }
-const { url } = Astro.props
+const { url: urlProp } = Astro.props
+const url = typeof urlProp === 'string' ? new URL(urlProp) : urlProp;
 const id = url.pathname.split('/')[2]
 ---
 

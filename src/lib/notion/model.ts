@@ -379,7 +379,7 @@ export interface Column {
  * リスト情報を表すインターフェース
  */
 export interface List {
-  Type: 'bulleted_list' | 'numbered_list';
+  Type: 'bulleted_list' | 'numbered_list' | 'to_do_list';
   ListItems: Block[];
 }
 

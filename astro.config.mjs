@@ -44,7 +44,9 @@ export default defineConfig({
   output: "static",
 
   integrations: [
-    react(),
+    react({
+      experimentalReactChildren: true,
+    }),
     icon(),
     CoverImageDownloader(),
     CustomIconDownloader(),
@@ -76,7 +78,7 @@ export default defineConfig({
         'child_process',
         'os'
       ],
-      noExternal: ['prismjs', 'katex']
+      noExternal: ['prismjs', 'katex', 'mermaid']
     },
   },
   adapter: cloudflare({

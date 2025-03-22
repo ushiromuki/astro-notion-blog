@@ -178,7 +178,8 @@ export const buildHeadingId = (heading: Heading1 | Heading2 | Heading3) => {
     .trim()
 }
 
-export const isTweetURL = (url: URL): boolean => {
+export const isTweetURL = (url: URL | null): boolean => {
+  if (!url) return false;
   if (
     url.hostname !== 'twitter.com' &&
     url.hostname !== 'www.twitter.com' &&
@@ -190,14 +191,16 @@ export const isTweetURL = (url: URL): boolean => {
   return /\/[^/]+\/status\/[\d]+/.test(url.pathname)
 }
 
-export const isTikTokURL = (url: URL): boolean => {
+export const isTikTokURL = (url: URL | null): boolean => {
+  if (!url) return false;
   if (url.hostname !== 'tiktok.com' && url.hostname !== 'www.tiktok.com') {
     return false
   }
   return /\/[^/]+\/video\/[\d]+/.test(url.pathname)
 }
 
-export const isInstagramURL = (url: URL): boolean => {
+export const isInstagramURL = (url: URL | null): boolean => {
+  if (!url) return false;
   if (
     url.hostname !== 'instagram.com' &&
     url.hostname !== 'www.instagram.com'
@@ -207,7 +210,8 @@ export const isInstagramURL = (url: URL): boolean => {
   return /\/p\/[^/]+/.test(url.pathname)
 }
 
-export const isPinterestURL = (url: URL): boolean => {
+export const isPinterestURL = (url: URL | null): boolean => {
+  if (!url) return false;
   if (
     url.hostname !== 'pinterest.com' &&
     url.hostname !== 'www.pinterest.com' &&
@@ -219,21 +223,24 @@ export const isPinterestURL = (url: URL): boolean => {
   return /\/pin\/[\d]+/.test(url.pathname)
 }
 
-export const isCodePenURL = (url: URL): boolean => {
+export const isCodePenURL = (url: URL | null): boolean => {
+  if (!url) return false;
   if (url.hostname !== 'codepen.io' && url.hostname !== 'www.codepen.io') {
     return false
   }
   return /\/[^/]+\/pen\/[^/]+/.test(url.pathname)
 }
 
-export const isShortAmazonURL = (url: URL): boolean => {
+export const isShortAmazonURL = (url: URL | null): boolean => {
+  if (!url) return false;
   if (url.hostname === 'amzn.to' || url.hostname === 'www.amzn.to') {
     return true
   }
   return false
 }
 
-export const isFullAmazonURL = (url: URL): boolean => {
+export const isFullAmazonURL = (url: URL | null): boolean => {
+  if (!url) return false;
   if (
     url.hostname === 'amazon.com' ||
     url.hostname === 'www.amazon.com' ||
@@ -245,11 +252,13 @@ export const isFullAmazonURL = (url: URL): boolean => {
   return false
 }
 
-export const isAmazonURL = (url: URL): boolean => {
+export const isAmazonURL = (url: URL | null): boolean => {
+  if (!url) return false;
   return isShortAmazonURL(url) || isFullAmazonURL(url)
 }
 
-export const isYouTubeURL = (url: URL): boolean => {
+export const isYouTubeURL = (url: URL | null): boolean => {
+  if (!url) return false;
   if (['www.youtube.com', 'youtube.com', 'youtu.be'].includes(url.hostname)) {
     return true
   }
@@ -265,8 +274,8 @@ export const isYouTubeURL = (url: URL): boolean => {
 // - https://www.youtube.com/v/0zM3nApSvMg?fs=1&amp;hl=en_US&amp;rel=0
 // - https://www.youtube.com/embed/0zM3nApSvMg?rel=0
 // - https://youtube.com/live/uOLwqWlpKbA
-export const parseYouTubeVideoId = (url: URL): string => {
-  if (!isYouTubeURL(url)) return ''
+export const parseYouTubeVideoId = (url: URL | null): string => {
+  if (!url || !isYouTubeURL(url)) return ''
 
   if (url.hostname === 'youtu.be') {
     return url.pathname.split('/')[1]

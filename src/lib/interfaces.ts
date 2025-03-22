@@ -4,4 +4,11 @@
  * Notionのデータモデルを定義している`./notion/model.ts`からすべてのインターフェースを再エクスポートします。
  */
 
+import type { RichText } from './notion/model';
+
 export * from './notion/model';
+
+export interface Embed {
+  Url: string
+  Caption?: RichText[]
+}

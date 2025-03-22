@@ -1,19 +1,11 @@
-import Prism from 'prismjs';
-import 'prismjs/components/prism-css';
-import 'prismjs/components/prism-diff';
-import 'prismjs/components/prism-docker';
-import 'prismjs/components/prism-elixir';
-import 'prismjs/components/prism-go';
-import 'prismjs/components/prism-hcl';
-import 'prismjs/components/prism-java';
-import 'prismjs/components/prism-json';
-import 'prismjs/components/prism-python';
-import 'prismjs/components/prism-ruby';
-import 'prismjs/components/prism-sql';
-import 'prismjs/components/prism-typescript';
-import 'prismjs/components/prism-yaml';
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import type * as interfaces from '../../lib/interfaces';
+
+/**
+ * ブラウザ環境かどうかを判定する関数
+ * @returns {boolean} ブラウザ環境ならtrue、そうでなければfalse
+ */
+const isBrowser = () => typeof window !== 'undefined';
 
 interface CodeProps {
   block: interfaces.Block;
@@ -79,31 +71,120 @@ const Code: React.FC<CodeProps> = ({ block }) => {
   ).join('') || '';
   
   const language = block.Code?.Language.toLowerCase() || '';
-  const grammar = Prism.languages[language.toLowerCase()] || Prism.languages.javascript;
+  const [highlightedCode, setHighlightedCode] = useState<string>(code);
+  const [isPrismLoaded, setIsPrismLoaded] = useState<boolean>(false);
   
   const mermaidRef = useRef<HTMLPreElement>(null);
   const copyButtonRef = useRef<HTMLButtonElement>(null);
 
+  // Prismのインポートとハイライト処理の初期化
+  useEffect(() => {
+    if (!isBrowser()) return;
+
+    // Prismを動的にインポート
+    const loadPrism = async () => {
+      try {
+        const Prism = await import('prismjs');
+        
+        // 言語コンポーネントを動的にインポート
+        await Promise.all([
+          // @ts-ignore
+          import('prismjs/components/prism-css'),
+          // @ts-ignore
+          import('prismjs/components/prism-diff'),
+          // @ts-ignore
+          import('prismjs/components/prism-docker'),
+          // @ts-ignore
+          import('prismjs/components/prism-elixir'),
+          // @ts-ignore
+          import('prismjs/components/prism-go'),
+          // @ts-ignore
+          import('prismjs/components/prism-hcl'),
+          // @ts-ignore
+          import('prismjs/components/prism-java'),
+          // @ts-ignore
+          import('prismjs/components/prism-json'),
+          // @ts-ignore
+          import('prismjs/components/prism-python'),
+          // @ts-ignore
+          import('prismjs/components/prism-ruby'),
+          // @ts-ignore
+          import('prismjs/components/prism-sql'),
+          // @ts-ignore
+          import('prismjs/components/prism-typescript'),
+          // @ts-ignore
+          import('prismjs/components/prism-yaml')
+        ]);
+        
+        // デフォルトのグラマーを設定
+        let grammar = Prism.default.languages.javascript;
+        
+        // 言語に応じたグラマーを使用
+        if (Prism.default.languages[language]) {
+          grammar = Prism.default.languages[language];
+        }
+        
+        // コードをハイライト
+        const highlighted = Prism.default.highlight(code, grammar, language);
+        setHighlightedCode(highlighted);
+        setIsPrismLoaded(true);
+      } catch (error) {
+        console.error('Prism load error:', error);
+        setHighlightedCode(code); // エラーが発生した場合は元のコードを表示
+      }
+    };
+
+    loadPrism();
+  }, [code, language]);
+
   // Mermaidの初期化
   useEffect(() => {
+    // ブラウザ環境でのみ実行
+    if (!isBrowser()) return;
+    
     if (language === 'mermaid' && mermaidRef.current) {
-      import('mermaid').then((mermaid) => {
-        mermaid.default.initialize({ 
-          startOnLoad: true, 
-          theme: 'neutral' 
-        });
-        mermaid.default.run();
-      });
+      // 動的インポートを使用してMermaidをロード
+      const loadMermaid = async () => {
+        try {
+          // 絶対パスでインポートを試みる（ヌルバイト問題を回避）
+          const mermaidModule = await import('mermaid/dist/mermaid.js');
+          const mermaid = mermaidModule.default || mermaidModule;
+          
+          if (mermaid && typeof mermaid.initialize === 'function') {
+            mermaid.initialize({ 
+              startOnLoad: true, 
+              theme: 'neutral',
+              securityLevel: 'loose'
+            });
+            
+            if (typeof mermaid.run === 'function') {
+              mermaid.run();
+            }
+          }
+        } catch (error) {
+          console.error('Mermaid load error:', error);
+          
+          // Fallback - 直接コードを表示
+          if (mermaidRef.current) {
+            mermaidRef.current.textContent = code;
+          }
+        }
+      };
+      
+      loadMermaid();
     }
-  }, [language]);
+  }, [language, code]);
 
   // コピーボタンの設定
   useEffect(() => {
+    // ブラウザ環境でのみ実行
+    if (!isBrowser()) return;
+    
     const copyButton = copyButtonRef.current;
     if (!copyButton) return;
 
     const handleClick = () => {
-      if (navigator.clipboard) {
+      if (typeof navigator !== 'undefined' && navigator.clipboard) {
         navigator.clipboard.writeText(code).then(() => {
           const originalText = copyButton.innerText;
           copyButton.innerText = copyButton.getAttribute('data-done-text') || 'Copied!';
@@ -112,6 +193,8 @@ const Code: React.FC<CodeProps> = ({ block }) => {
               copyButton.innerText = originalText;
             }
           }, 3000);
+        }).catch(error => {
+          console.error('Copy error:', error);
         });
       }
     };
@@ -121,6 +204,19 @@ const Code: React.FC<CodeProps> = ({ block }) => {
       copyButton.removeEventListener('click', handleClick);
     };
   }, [code]);
+
+  // サーバーサイドレンダリング時はシンプルな表示を返す
+  if (!isBrowser()) {
+    return (
+      <div className="w-full mb-2">
+        <div className="bg-[#f7f6f3] rounded">
+          <pre className="block overflow-auto px-8 py-8 text-sm leading-[1.2rem] whitespace-pre">
+            <code>{code}</code>
+          </pre>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="w-full mb-2">
@@ -142,12 +238,16 @@ const Code: React.FC<CodeProps> = ({ block }) => {
               </button>
             </div>
             <pre className="block overflow-auto px-8 pt-2 pb-8 text-sm leading-[1.2rem] whitespace-pre w-[100px] min-w-full overflow-x-auto">
-              <code 
-                className="text-[var(--fg)] p-0 bg-[#f7f6f3] rounded-none"
-                dangerouslySetInnerHTML={{ 
-                  __html: Prism.highlight(code, grammar, language) 
-                }} 
-              />
+              {isPrismLoaded ? (
+                <code 
+                  className="text-[var(--fg)] p-0 bg-[#f7f6f3] rounded-none"
+                  dangerouslySetInnerHTML={{ __html: highlightedCode }} 
+                />
+              ) : (
+                <code className="text-[var(--fg)] p-0 bg-[#f7f6f3] rounded-none">
+                  {code}
+                </code>
+              )}
             </pre>
           </>
         )}
