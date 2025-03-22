@@ -1,13 +1,18 @@
-// Cloudflare Workersでのnode互換性を有効化
-export const config = {
-  runtime: 'edge',
-  nodejs_compat: true
-}
 
 import { ImageResponse } from '@cloudflare/pages-plugin-vercel-og/api'
-import type { APIContext } from 'astro'
+import { Hono } from 'hono'
 import { loadGoogleFont } from '../../src/lib/loadGoogleFont'
 import { getPostBySlug } from '../../src/lib/notion/client'
+
+/**
+ * @description OG画像生成用のCloudflare Functions
+ * 
+ * このスクリプトは、ブログ記事のOG画像を動的に生成します。
+ * Honoフレームワークを利用して、URLのスラッグからNotionの記事データを取得し、
+ * カスタマイズされたOG画像をレスポンスとして返します。
+ * 
+ * @returns {Response} 生成されたOG画像のレスポンス
+ */
 
 const U200D = String.fromCharCode(8205)
 const UFE0Fg = /\uFE0F/g
@@ -19,26 +24,24 @@ type Font = {
   style: string
 }
 
-export async function onRequestGet({ request }: APIContext) {
-  // WASMファイルの読み込み
-  // await initResvg()
+// Honoアプリケーションの作成
+const app = new Hono()
 
-  const pathnameMatch = new URL(request.url).pathname.match(
-    '.+/(.+?).[a-z]+([?#;].*)?$'
-  )
+// OG画像生成用のルートハンドラー
+app.get('/:slug.png', async (c) => {
+  // スラッグの取得
+  const slug = c.req.param('slug')
   
-  if (!pathnameMatch || !pathnameMatch[1]) {
-    return new Response('Invalid URL format', { status: 400 })
+  if (!slug) {
+    return c.text('Invalid URL format', 400)
   }
   
-  const filename = pathnameMatch[1]
-
   let isPost = false
   let text = 'USRM Blog'
   let emoji = ''
 
-  if (filename !== 'default-og-image') {
-    const post = await getPostBySlug(filename)
+  if (slug !== 'default-og-image') {
+    const post = await getPostBySlug(slug)
     text = post?.Title || text // デフォルト値として元の'USRM Blog'を使用
     const postEmoji =
       post?.Icon && post?.Icon.Type === 'emoji' ? post?.Icon.Emoji : ''
@@ -61,11 +64,11 @@ export async function onRequestGet({ request }: APIContext) {
     })
   }
 
-  let svg = null
+  // OG画像の生成
+  let ogImage = null
 
-  // svgの生成
   if (isPost) {
-    svg = new ImageResponse(
+    ogImage = new ImageResponse(
       {
         type: 'div',
         props: {
@@ -127,7 +130,7 @@ export async function onRequestGet({ request }: APIContext) {
       }
     )
   } else {
-    svg = new ImageResponse(
+    ogImage = new ImageResponse(
       {
         type: 'div',
         props: {
@@ -179,5 +182,12 @@ export async function onRequestGet({ request }: APIContext) {
   }
 
   // pngデータを返す
-  return svg
-}
+  return new Response(ogImage.body, {
+    headers: {
+      'Content-Type': 'image/png',
+      'Cache-Control': 'public, max-age=60, s-maxage=60, stale-while-revalidate=600',
+    },
+  })
+})
+
+export default app
