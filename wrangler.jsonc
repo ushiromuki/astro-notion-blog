@@ -3,6 +3,7 @@
  * https://developers.cloudflare.com/workers/wrangler/configuration/
  */
 {
+	"name": "usrm-blog",
 	"compatibility_flags": [
     "nodejs_compat"
   ],
