@@ -1,12 +1,12 @@
 ---
-import { getTagLink } from '../lib/blog-helpers.ts'
 import type { Post, SelectProperty } from '../lib/interfaces.ts'
+import { getTagLink } from '../lib/blog-helpers.ts'
 import '../styles/notion-color.css'
 
 export interface Props {
   post: Post
   enableLink: boolean
-  directionRight?: boolean
+  directionRight? : boolean
 }
 
 const { post, enableLink = true, directionRight = false } = Astro.props

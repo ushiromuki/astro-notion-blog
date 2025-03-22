@@ -1,0 +1,326 @@
+---
+/**
+ * @component SearchModal
+ * @description 記事検索用のモーダルコンポーネント
+ * 
+ * このコンポーネントは、サイト内の記事を検索するためのモーダルインターフェースを提供します。
+ * RSSフィードから記事情報を取得し、リアルタイムで検索結果を表示します。
+ * キーボード操作とマウス操作の両方をサポートしています。
+ * 
+ * @remarks
+ * - 検索は記事タイトルと説明文に対して行われます
+ * - 上下キーで検索結果の選択、Enterキーで記事ページへ移動可能
+ * - ESCキーでモーダルが閉じられます
+ */
+---
+
+<div class="hidden" id="search-modal-container">
+  <div class="fixed inset-0 bg-black/50 backdrop-blur-sm z-[99]" id="search-overlay"></div>
+
+  <div class="fixed top-[8px] left-[50%] translate-x-[-50%] w-[calc(100dvw-16px)] h-[calc(100dvh-16px)] md:max-w-xl rounded-md bg-[var(--bg)] z-[100] overflow-hidden" id="search-modal">
+    <div class="my-1.5 px-1.5">
+      <input 
+        type="text" 
+        placeholder="Search..." 
+        class="w-full border-0 p-[0.4rem] bg-[var(--input-bg)] text-[var(--fg)] text-[1.2rem] leading-[1.6rem]"
+        id="search-input"
+      />
+    </div>
+    <div class="border-t border-[var(--hr-border)] overflow-y-auto max-h-[calc(100dvh-100px)]" id="search-result">
+      <ul class="m-[0.3rem] p-0 list-none" id="search-result-list">
+        <li class="selected">
+          <a href="#" class="block p-[0.4rem_0.6rem] rounded-[var(--radius)]">
+            <div class="py-[0.1rem] text-[var(--fg)] text-[1.1rem] leading-[1.2rem] font-bold search-result-title"></div>
+            <div class="mb-[0.1rem] text-[var(--fg)] text-[0.9rem] leading-[1.2rem] search-result-description"></div>
+          </a>
+        </li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+
+<script>
+  /**
+   * 検索モーダルの機能を実装するスクリプト
+   * 
+   * @description
+   * RSSフィードから記事データを取得し、検索と結果表示の機能を提供します。
+   * キーボード操作（上下キー、Enter、ESC）とマウス操作をサポートしています。
+   */
+  document.addEventListener('DOMContentLoaded', async () => {
+    // 検索結果として表示される記事データの配列
+    type FeedItem = {
+      title: string;
+      link: string;
+      description?: string;
+      pubDate: string;
+    };
+
+    let feedItems: FeedItem[] = [];
+    let fetched = false;
+
+    /**
+     * 検索モーダルを開く関数
+     */
+    async function openModal(): Promise<void> {
+      const modalContainer = document.getElementById('search-modal-container');
+      const searchInput = document.getElementById('search-input') as HTMLInputElement;
+      
+      if (modalContainer && searchInput) {
+        modalContainer.classList.remove('hidden');
+        searchInput.focus();
+
+        if (!fetched) {
+          await fetchRSS();
+        }
+        searchAndRender();
+      }
+    }
+
+    /**
+     * 検索モーダルを閉じる関数
+     */
+    function closeModal(): void {
+      const modalContainer = document.getElementById('search-modal-container');
+      if (modalContainer) {
+        modalContainer.classList.add('hidden');
+      }
+    }
+
+    /**
+     * キーボードイベントを処理する関数
+     * @param event - キーボードイベント
+     */
+    function handleKeydown(event: KeyboardEvent): void {
+      if (event.keyCode === 13) {
+        // Enter
+        select();
+      } else if (event.keyCode === 27) {
+        // ESC
+        closeModal();
+      } else if (event.keyCode === 38) {
+        // Up
+        selectUp(event);
+      } else if (event.keyCode === 40) {
+        // Down
+        selectDown(event);
+      } else {
+        searchAndRender();
+      }
+    }
+
+    /**
+     * 選択された項目のリンクをクリックする関数
+     */
+    function select(): void {
+      const a = document.querySelector('.search-result ul > li.selected a') as HTMLAnchorElement;
+      if (a) {
+        a.click();
+      }
+    }
+
+    /**
+     * 検索結果の最初の項目を選択する関数
+     */
+    function selectFirst(): void {
+      const resultList = document.getElementById('search-result-list');
+      if (resultList) {
+        const li = resultList.querySelector('li:first-child');
+        if (li) {
+          li.classList.add('selected');
+        }
+      }
+    }
+
+    /**
+     * 上キーを押したときに選択項目を一つ上に移動する関数
+     * @param event - キーボードイベント
+     */
+    function selectUp(event: KeyboardEvent): void {
+      event.preventDefault();
+
+      const ul = document.getElementById('search-result-list');
+      if (!ul) return;
+
+      const selected = ul.querySelector('.selected');
+      if (selected) {
+        selected.classList.remove('selected');
+
+        if (selected.previousElementSibling) {
+          selected.previousElementSibling.classList.add('selected');
+        } else if (ul.lastElementChild) {
+          ul.lastElementChild.classList.add('selected');
+        }
+      } else if (ul.lastElementChild) {
+        ul.lastElementChild.classList.add('selected');
+      }
+    }
+
+    /**
+     * 下キーを押したときに選択項目を一つ下に移動する関数
+     * @param event - キーボードイベント
+     */
+    function selectDown(event: KeyboardEvent): void {
+      event.preventDefault();
+
+      const ul = document.getElementById('search-result-list');
+      if (!ul) return;
+      
+      const selected = ul.querySelector('.selected');
+      if (selected) {
+        selected.classList.remove('selected');
+
+        if (selected.nextElementSibling) {
+          selected.nextElementSibling.classList.add('selected');
+        } else if (ul.firstElementChild) {
+          ul.firstElementChild.classList.add('selected');
+        }
+      } else if (ul.firstElementChild) {
+        ul.firstElementChild.classList.add('selected');
+      }
+    }
+
+    /**
+     * マウスオーバー時に項目を選択状態にする関数
+     * @param event - マウスイベント
+     */
+    function handleMouseover(event: MouseEvent): void {
+      const target = event.target as HTMLElement;
+      const ul = target.closest('ul');
+      const li = target.closest('li');
+      
+      if (ul && li) {
+        Array.from(ul.children).forEach((element) => {
+          element.classList.remove('selected');
+        });
+        li.classList.add('selected');
+      }
+    }
+
+    /**
+     * 検索と結果表示を行う関数
+     */
+    function searchAndRender(): void {
+      const searchInput = document.getElementById('search-input') as HTMLInputElement;
+      if (!searchInput) return;
+      
+      const text = searchInput.value.trim();
+
+      if (text !== '') {
+        const results = search(text);
+        renderResults(results);
+      } else {
+        renderResults(feedItems);
+      }
+
+      selectFirst();
+    }
+
+    /**
+     * 検索を実行する関数
+     * @param query - 検索クエリ
+     * @returns 検索結果の配列
+     */
+    function search(query: string): FeedItem[] {
+      const results: FeedItem[] = [];
+      feedItems.forEach((item) => {
+        if (item.title.includes(query) || item?.description?.includes(query)) {
+          results.push(item);
+        }
+      });
+      return results;
+    }
+
+    /**
+     * 検索結果をレンダリングする関数
+     * @param results - 検索結果の配列
+     */
+    function renderResults(results: FeedItem[]): void {
+      const ul = document.getElementById('search-result-list');
+      if (!ul) return;
+      
+      ul.innerHTML = '';
+
+      results.forEach((item) => {
+        const li = document.createElement('li');
+        const a = document.createElement('a');
+        const title = document.createElement('div');
+        const description = document.createElement('div');
+
+        title.classList.add('search-result-title', 'py-[0.1rem]', 'text-[var(--fg)]', 'text-[1.1rem]', 'leading-[1.2rem]', 'font-bold');
+        title.textContent = item.title;
+        
+        description.classList.add('search-result-description', 'mb-[0.1rem]', 'text-[var(--fg)]', 'text-[0.9rem]', 'leading-[1.2rem]');
+        description.textContent = item.description || '';
+        
+        a.href = item.link;
+        a.classList.add('block', 'p-[0.4rem_0.6rem]', 'rounded-[var(--radius)]');
+
+        li.addEventListener('mouseover', handleMouseover);
+
+        a.appendChild(title);
+        a.appendChild(description);
+        li.appendChild(a);
+        ul.appendChild(li);
+      });
+    }
+
+    /**
+     * RSSフィードを取得する関数
+     */
+    async function fetchRSS(): Promise<void> {
+      const url = new URL(location.href);
+      const port = url.port ? `:${url.port}` : '';
+
+      try {
+        const res = await fetch(
+          `${url.protocol}//${url.hostname}${port}/feed`
+        );
+        if (res.status !== 200) {
+          console.log(`エラーステータス: ${res.status}`);
+          throw new Error('RSSフィードの取得に失敗しました');
+        }
+
+        const body = await res.text();
+
+        const parser = new DOMParser();
+        const xml = parser.parseFromString(body, 'text/xml');
+
+        Array.from(xml.getElementsByTagName('item')).forEach((item) => {
+          const title = item.getElementsByTagName('title')[0]?.textContent || '';
+          const link = item.getElementsByTagName('link')[0]?.textContent || '';
+          const description = item.getElementsByTagName('description')[0]?.textContent || undefined;
+          const pubDate = item.getElementsByTagName('pubDate')[0]?.textContent || '';
+
+          feedItems.push({
+            title,
+            link,
+            description,
+            pubDate,
+          });
+        });
+
+        fetched = true;
+      } catch (error) {
+        console.error('RSSフィードの取得中にエラーが発生しました:', error);
+      }
+    }
+
+    // 検索モーダルを開くボタンへのイベントリスナー追加
+    Array.from(document.getElementsByClassName('open-search-modal')).forEach(
+      (element) => {
+        element.addEventListener('click', openModal);
+      }
+    );
+    
+    // オーバーレイクリックでモーダルを閉じる
+    const overlay = document.getElementById('search-overlay');
+    if (overlay) {
+      overlay.addEventListener('click', closeModal);
+    }
+    
+    // キーボードイベントの追加
+    document.addEventListener('keydown', handleKeydown);
+  });
+</script>

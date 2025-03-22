@@ -1,6 +1,6 @@
 ---
-import SearchButton from '../components/SearchButton'
-import SearchModal from '../components/SearchModal'
+import SearchButton from '../components/SearchButton.astro'
+import SearchModal from '../components/SearchModal.astro'
 import { filePath, getNavLink } from '../lib/blog-helpers.ts'
 import { getDatabase } from '../lib/notion/client.ts'
 import '../styles/global.css'
@@ -128,7 +128,7 @@ if (database.Icon && database.Icon.Type === 'file') {
               <div class="header_btn_area">
                 <a class="header_btn" href="/">Home</a>
                 <a class="header_btn" href="/posts">Blog</a>
-                <SearchButton client:only="react" />
+                <SearchButton />
               </div>
               
             </header>
@@ -154,7 +154,7 @@ if (database.Icon && database.Icon.Type === 'file') {
       </div>
     </div>
 
-    <SearchModal client:only="react"/>
+    <SearchModal/>
   </body>
 </html>
 

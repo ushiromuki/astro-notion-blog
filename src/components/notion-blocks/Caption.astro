@@ -1,20 +1,17 @@
 ---
-export const prerender = true
-import type { RichText } from '../../lib/interfaces.ts'
+import { RichText } from '../../lib/interfaces.ts'
 
 export interface Props {
   richTexts: RichText[]
 }
 
-const { richTexts = [] } = Astro.props
-const hasContent = richTexts.length > 0 && richTexts[0]?.Text?.Content
-const captionText = hasContent ? richTexts[0].Text?.Content : ''
+const { richTexts } = Astro.props
 ---
 
 {
-  hasContent && (
+  richTexts.length > 0 && richTexts[0].Text.Content && (
     <div class="caption">
-      <div>{captionText}</div>
+      <div>{richTexts[0].Text.Content}</div>
     </div>
   )
 }

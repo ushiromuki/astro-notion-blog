@@ -1,6 +1,10 @@
 ---
-import * as interfaces from '../../lib/interfaces.ts'
+import createMetascraper from 'metascraper'
+import metascraperDescription from 'metascraper-description'
+import metascraperImage from 'metascraper-image'
+import metascraperTitle from 'metascraper-title'
 import { isAmazonURL } from '../../lib/blog-helpers.ts'
+import * as interfaces from '../../lib/interfaces.ts'
 
 export interface Props {
   block: interfaces.Block
@@ -9,84 +13,28 @@ export interface Props {
 
 const { block, urlMap } = Astro.props
 
-const urlString = (
-  block.Bookmark?.Url ||
-  block.LinkPreview?.Url ||
-  block.Embed?.Url ||
-  ''
-).trim()
+const urlString = (block.Bookmark || block.LinkPreview || block.Embed).Url
 
-let url: URL | null = null
-
+let url: URL
+let metadata: Record<string, string>
 try {
-  if (urlString) {
-    url = new URL(urlString)
+  url = new URL(urlString)
+
+  if (!isAmazonURL(url)) {
+    const metascraper = createMetascraper([
+      metascraperDescription(),
+      metascraperImage(),
+      metascraperTitle(),
+    ])
+    const html = urlMap[url.toString()]
+    if (html) {
+      metadata = await metascraper({ html, url })
+    }
   }
 } catch (err) {
-  console.error('URL解析エラー:', err)
-  url = null
+  console.log(err)
 }
 ---
-
-<script>
-// クライアントサイドでmetascraperを使用するためのスクリプト
-import createMetascraper from 'metascraper'
-import metascraperDescription from 'metascraper-description'
-import metascraperImage from 'metascraper-image'
-import metascraperTitle from 'metascraper-title'
-import { isAmazonURL } from '../../lib/blog-helpers.ts'
-
-document.addEventListener('DOMContentLoaded', async () => {
-  const bookmarkElements = document.querySelectorAll('.bookmark-container');
-  
-  bookmarkElements.forEach(async (element) => {
-    const urlString = element.getAttribute('data-url');
-    if (!urlString) return;
-
-    try {
-      const url = new URL(urlString);
-      if (isAmazonURL(url)) return;
-
-      const metascraper = createMetascraper([
-        metascraperDescription(),
-        metascraperImage(),
-        metascraperTitle(),
-      ]);
-
-      // HTML取得
-      const response = await fetch(url.toString());
-      if (!response.ok) return;
-      const html = await response.text();
-
-      // メタデータ抽出
-      const metadata = await metascraper({ html, url: url.toString() });
-      
-      // DOM要素を更新
-      const titleElement = element.querySelector('.bookmark-title');
-      const descriptionElement = element.querySelector('.bookmark-description');
-      const imageElement = element.querySelector('.bookmark-image');
-      
-      if (titleElement && metadata.title) {
-        titleElement.textContent = metadata.title;
-      }
-      
-      if (descriptionElement && metadata.description) {
-        descriptionElement.textContent = metadata.description;
-      }
-      
-      if (imageElement && metadata.image) {
-        const img = document.createElement('img');
-        img.src = metadata.image;
-        img.alt = 'Site image of the bookmark';
-        img.loading = 'lazy';
-        imageElement.appendChild(img);
-      }
-    } catch (error) {
-      console.error('Metascraper error:', error);
-    }
-  });
-});
-</script>
 
 {
   url && (
@@ -96,11 +44,11 @@ document.addEventListener('DOMContentLoaded', async () => {
           <a href={url.toString()}>{url.toString()}</a>
         </div>
       ) : (
-        <div class="bookmark bookmark-container" data-url={url.toString()}>
+        <div class="bookmark">
           <a href={url.toString()} target="_blank" rel="noopener noreferrer">
             <div>
-              <div class="bookmark-title">Loading...</div>
-              <div class="bookmark-description"></div>
+              <div>{metadata && metadata.title}</div>
+              <div>{metadata && metadata.description}</div>
               <div>
                 <div>
                   <img
@@ -112,8 +60,14 @@ document.addEventListener('DOMContentLoaded', async () => {
                 <div>{url.origin}</div>
               </div>
             </div>
-            <div class="bookmark-image">
-              <!-- メタデータロード後に画像が挿入されます -->
+            <div>
+              {metadata && metadata.image && (
+                <img
+                  src={metadata.image}
+                  alt="Site image of the bookmark"
+                  loading="lazy"
+                />
+              )}
             </div>
           </a>
         </div>

@@ -1,8 +1,8 @@
 ---
-import type * as interfaces from '../../lib/interfaces.ts'
+import * as interfaces from '../../lib/interfaces.ts'
 import { snakeToKebab } from '../../lib/style-helpers.ts'
-import NotionBlocks from '../NotionBlocks.astro'
 import RichText from './RichText.astro'
+import NotionBlocks from '../NotionBlocks.astro'
 
 export interface Props {
   block: interfaces.Block
@@ -10,39 +10,33 @@ export interface Props {
 }
 
 const { block, headings } = Astro.props
-
-const isCallout = (
-  b: interfaces.Block
-): b is interfaces.Block & { Callout: interfaces.Callout } => !!b.Callout
 ---
 
-{isCallout(block) && (
-  <div class={`callout ${snakeToKebab(block.Callout.Color)}`}>
+<div class={`callout ${snakeToKebab(block.Callout.Color)}`}>
+  {
+    block.Callout.Icon && (
+      <div>
+        {block.Callout.Icon.Type === 'emoji' ? (
+          block.Callout.Icon.Emoji
+        ) : block.Callout.Icon.Type === 'external' ? (
+          <img src={block.Callout.Icon.Url} alt="Icon in a callout block" />
+        ) : null}
+      </div>
+    )
+  }
+  <div>
     {
-      block.Callout.Icon && (
-        <div class="icon">
-          {block.Callout.Icon.Type === 'emoji' ? (
-            block.Callout.Icon.Emoji
-          ) : block.Callout.Icon.Type === 'external' ? (
-            <img src={block.Callout.Icon.Url} alt="Icon in a callout block" />
-          ) : null}
-        </div>
+      block.Callout.RichTexts.map((richText: interfaces.RichText) => (
+        <RichText richText={richText} />
+      ))
+    }
+    {
+      block.Callout.Children && (
+        <NotionBlocks blocks={block.Callout.Children} headings={headings} />
       )
     }
-    <div>
-      {
-        block.Callout.RichTexts.map((richText: interfaces.RichText) => (
-          <RichText richText={richText} />
-        ))
-      }
-      {
-        block.Callout.Children && (
-          <NotionBlocks blocks={block.Callout.Children} headings={headings} />
-        )
-      }
-    </div>
   </div>
-)}
+</div>
 
 <style>
   .callout {
@@ -59,14 +53,14 @@ const isCallout = (
     border-color: transparent;
     background: rgba(235, 236, 237, 0.6);
   }
-  .callout > div {
+  .callout div {
     margin: 0;
     line-height: 1.5rem;
   }
-  .callout > div.icon {
+  .callout div:first-child {
     margin-right: 0.7rem;
   }
-  .callout > div.icon > img {
+  .callout div:first-child img {
     width: 1.2rem;
     height: 1.2rem;
   }

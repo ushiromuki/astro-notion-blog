@@ -2,8 +2,8 @@ export const prerender = false
 
 import { ImageResponse } from '@cloudflare/pages-plugin-vercel-og/api'
 import type { APIContext } from 'astro'
-import { loadGoogleFont } from '../../lib/loadGoogleFont'
-import { getPostBySlug } from '../../lib/notion/client'
+import { loadGoogleFont } from '../../src/lib/loadGoogleFont'
+import { getPostBySlug } from '../../src/lib/notion/client'
 
 const U200D = String.fromCharCode(8205)
 const UFE0Fg = /\uFE0F/g
@@ -15,7 +15,7 @@ type Font = {
   style: string
 }
 
-export async function GET({ request }: APIContext) {
+export async function onRequestGet({ request }: APIContext) {
   // WASMファイルの読み込み
   // await initResvg()
 

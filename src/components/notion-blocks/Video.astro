@@ -1,7 +1,7 @@
 ---
-export const prerender = true;
-import type * as interfaces from '../../lib/interfaces.ts';
-import Caption from './Caption.astro';
+import * as interfaces from '../../lib/interfaces.ts'
+import { isYouTubeURL, parseYouTubeVideoId } from '../../lib/blog-helpers.ts'
+import Caption from './Caption.astro'
 
 export interface Props {
   block: interfaces.Block
@@ -9,64 +9,41 @@ export interface Props {
 
 const { block } = Astro.props
 
-// サーバーサイドでの処理を最小限に
-const urlString = block.Video?.External?.Url || '';
-let isYouTube = false;
-let youtubeVideoId = '';
-
-// 完全にクライアントでのパース処理を避けるため、文字列操作で対応
-if (urlString && (urlString.includes('youtube.com') || urlString.includes('youtu.be'))) {
-  isYouTube = true;
-  
-  if (urlString.includes('v=')) {
-    // youtube.com/watch?v=XXXXXXXの形式
-    const idParam = urlString.split('v=')[1];
-    if (idParam) {
-      youtubeVideoId = idParam.split('&')[0].split('#')[0];
-    }
-  } else if (urlString.includes('youtu.be/')) {
-    // youtu.be/XXXXXXXの形式
-    const parts = urlString.split('youtu.be/');
-    if (parts[1]) {
-      youtubeVideoId = parts[1].split('?')[0].split('&')[0].split('#')[0];
-    }
-  }
+let url: URL
+try {
+  url = new URL(block.Video.External?.Url)
+} catch (err) {
+  console.log(err)
 }
 ---
 
 <div class="video">
   <div>
-    {isYouTube && youtubeVideoId && (
-      <iframe
-        src={`https://www.youtube.com/embed/${youtubeVideoId}`}
-        title="YouTube video player"
-        frameborder="0"
-        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-        allowfullscreen
-      />
-    )}
-    {!isYouTube && urlString && (
-      <video controls>
-        <source src={urlString} />
-        お使いのブラウザはビデオタグをサポートしていません。
-      </video>
-    )}
+    {
+      isYouTubeURL(url) && (
+        <iframe
+          src={`https://www.youtube.com/embed/${parseYouTubeVideoId(url)}`}
+          title="YouTube video player"
+          frameborder="0"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+          allowfullscreen
+        />
+      )
+    }
   </div>
-  <Caption richTexts={block.Video?.Caption || []} />
+  <Caption richTexts={block.Video.Caption} />
 </div>
 
 <style>
   .video div:first-child {
     width: 100%;
   }
-  .video div:first-child iframe,
-  .video div:first-child video {
+  .video div:first-child iframe {
     width: 100%;
     height: 340px;
   }
   @media (max-width: 640px) {
-    .video div:first-child iframe,
-    .video div:first-child video {
+    .video div:first-child iframe {
       height: 220px;
     }
   }

@@ -1,7 +1,6 @@
-import cloudflare from '@astrojs/cloudflare';
 import react from '@astrojs/react';
 import icon from 'astro-icon';
-import { defineConfig, passthroughImageService } from 'astro/config';
+import { defineConfig } from 'astro/config';
 import CoverImageDownloader from './src/integrations/cover-image-downloader';
 import CustomIconDownloader from './src/integrations/custom-icon-downloader';
 import FeaturedImageDownloader from './src/integrations/featured-image-downloader';
@@ -57,32 +56,5 @@ export default defineConfig({
 
   vite: {
     plugins: [tailwindcss()],
-    ssr: {
-      external: [
-        'node:fs',
-        'node:stream/promises',
-        'stream',
-        'url',
-        'path',
-        'fs',
-        'vm',
-        'events',
-        'util',
-        'http',
-        'https',
-        'zlib',
-        'crypto',
-        'net',
-        'tls',
-        'assert',
-        'child_process',
-        'os'
-      ],
-      noExternal: ['prismjs', 'katex', 'mermaid']
-    },
   },
-  adapter: cloudflare({
-    output: "static",
-    imageService: passthroughImageService()
-  }),
 });

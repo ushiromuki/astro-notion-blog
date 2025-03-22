@@ -1,12 +1,9 @@
 ---
 export interface Props {
-  url: URL | string
+  url: URL
 }
 
-const { url: urlProp } = Astro.props
-
-// URLオブジェクトに変換（すでにURLオブジェクトの場合はそのまま）
-const url = typeof urlProp === 'string' ? new URL(urlProp) : urlProp;
+const { url } = Astro.props
 
 const postURL =
   url.hostname === 'x.com' || url.hostname === 'www.x.com'
@@ -16,7 +13,7 @@ const postURL =
 
 <div class="tweet-embed">
   <blockquote class="twitter-tweet">
-    <a href={postURL.toString()}></a>
+    <a href={postURL}></a>
   </blockquote>
 </div>
 
