@@ -1,8 +1,8 @@
 
 import { ImageResponse } from '@cloudflare/pages-plugin-vercel-og/api'
 import { Hono } from 'hono'
-import { loadGoogleFont } from '../../src/lib/loadGoogleFont'
-import { getPostBySlug } from '../../src/lib/notion/client'
+import { loadGoogleFont } from '../src/lib/loadGoogleFont'
+import { getPostBySlug } from '../src/lib/notion/client'
 
 /**
  * @description OG画像生成用のCloudflare Functions
@@ -28,7 +28,7 @@ type Font = {
 const app = new Hono()
 
 // OG画像生成用のルートハンドラー
-app.get('/:slug.png', async (c) => {
+app.get('og/:slug.png', async (c) => {
   // スラッグの取得
   const slug = c.req.param('slug')
   
