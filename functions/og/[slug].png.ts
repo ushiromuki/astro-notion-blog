@@ -20,9 +20,13 @@ import type { PageObjectResponse } from '@notionhq/client/build/src/api-endpoint
 import { Hono } from 'hono'
 import { handle } from 'hono/cloudflare-pages'
 
-// 定数
-const NOTION_API_SECRET = process.env.NOTION_API_SECRET || ''
-const DATABASE_ID = process.env.DATABASE_ID || ''
+// Honoアプリケーションの作成
+const app = new Hono<{
+  Bindings: {
+    NOTION_API_SECRET: string;
+    DATABASE_ID: string;
+  }
+}>()
 
 /**
  * Googleフォントをロードしてサブセット化する関数
@@ -73,10 +77,16 @@ async function loadGoogleFontForFunctions(text: string): Promise<ArrayBuffer | n
  * NotionからPostデータを取得する関数
  * 
  * @param {string} slug - 記事のスラッグ
+ * @param {string} notionApiSecret - Notion API シークレット
+ * @param {string} databaseId - データベースID
  * @returns {Promise<{Title?: string, Icon?: {Type: string, Emoji: string}}>} 記事データ
  */
-async function getPostBySlugForFunctions(slug: string): Promise<{Title?: string, Icon?: {Type: string, Emoji: string}}> {
-  if (!NOTION_API_SECRET || !DATABASE_ID) {
+async function getPostBySlugForFunctions(
+  slug: string, 
+  notionApiSecret: string, 
+  databaseId: string
+): Promise<{Title?: string, Icon?: {Type: string, Emoji: string}}> {
+  if (!notionApiSecret || !databaseId) {
     console.error('環境変数が設定されていません: NOTION_API_SECRET または DATABASE_ID')
     return {}
   }
@@ -84,12 +94,12 @@ async function getPostBySlugForFunctions(slug: string): Promise<{Title?: string,
   try {
     // Notionクライアントの初期化
     const notion = new Client({
-      auth: NOTION_API_SECRET,
+      auth: notionApiSecret,
     })
     
     // データベースをクエリ
     const response = await notion.databases.query({
-      database_id: DATABASE_ID,
+      database_id: databaseId,
       filter: {
         property: 'Slug',
         rich_text: {
@@ -141,11 +151,11 @@ type Font = {
   style: string
 }
 
-// Honoアプリケーションの作成
-const app = new Hono()
-
 // OG画像生成用のルートハンドラー
 app.get(':slug.png', async (c) => {
+  // 環境変数の取得
+  const { NOTION_API_SECRET, DATABASE_ID } = c.env
+
   // スラッグの取得
   const slug = c.req.param('slug')
   
@@ -158,7 +168,7 @@ app.get(':slug.png', async (c) => {
   let emoji = ''
 
   if (slug !== 'default-og-image') {
-    const post = await getPostBySlugForFunctions(slug)
+    const post = await getPostBySlugForFunctions(slug, NOTION_API_SECRET, DATABASE_ID)
     text = post?.Title || text // デフォルト値として元の'USRM Blog'を使用
     const postEmoji =
       post?.Icon && post?.Icon.Type === 'emoji' ? post?.Icon.Emoji : ''
