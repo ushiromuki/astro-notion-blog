@@ -3,7 +3,7 @@ import * as interfaces from '../../lib/interfaces.ts'
 import { snakeToKebab } from '../../lib/style-helpers.ts'
 import RichText from './RichText.astro'
 import NotionBlocks from '../NotionBlocks.astro'
-import '../../styles/notion-color.css'
+// import '../../styles/notion-color.css' // Removed import
 
 export interface Props {
   block: interfaces.Block
@@ -11,46 +11,51 @@ export interface Props {
 }
 
 const { block, headings } = Astro.props
+
+const notionColorToTailwindText: { [key: string]: string } = {
+  default: '',
+  gray: 'text-[rgba(120,119,116,1)]',
+  brown: 'text-[rgba(159,107,83,1)]',
+  orange: 'text-[rgba(217,115,13,1)]',
+  yellow: 'text-[rgba(203,145,47,1)]',
+  green: 'text-[rgba(68,131,97,1)]',
+  blue: 'text-[rgba(51,126,169,1)]',
+  purple: 'text-[rgba(144,101,176,1)]',
+  pink: 'text-[rgba(193,76,138,1)]',
+  red: 'text-[rgba(212,76,71,1)]',
+}
+
+const toDoBaseClasses = "text-gray-800 font-normal text-base leading-[1.8rem] pl-4"
+const sTagClasses = "text-[var(--accents-3)]"
+
 ---
 
-<div class="to-do">
+<div class={`to-do ${toDoBaseClasses}`}>
   {
     block.ListItems.filter((b: interfaces.Block) => b.Type === 'to_do').map(
-      (b: interfaces.Block) => (
-        <div class={snakeToKebab(b.ToDo.Color)}>
-          <input type="checkbox" checked={b.ToDo.Checked} disabled />
-          {b.ToDo.RichTexts.map((richText: interfaces.RichText) => {
-            if (b.ToDo.Checked) {
-              return (
-                <s>
-                  <RichText richText={richText} />
-                </s>
-              )
-            }
-            return <RichText richText={richText} />
-          })}
-          {b.HasChildren && (
-            <NotionBlocks blocks={b.ToDo.Children} headings={headings} />
-          )}
-        </div>
-      )
+      (b: interfaces.Block) => {
+        const colorKey = snakeToKebab(b.ToDo.Color)
+        const colorClass = notionColorToTailwindText[colorKey] || ''
+        return (
+          <div class={colorClass}>
+            <input type="checkbox" checked={b.ToDo.Checked} disabled />
+            {b.ToDo.RichTexts.map((richText: interfaces.RichText) => {
+              if (b.ToDo.Checked) {
+                return (
+                  <s class={sTagClasses}>
+                    <RichText richText={richText} />
+                  </s>
+                )
+              }
+              return <RichText richText={richText} />
+            })}
+            {b.HasChildren && (
+              <NotionBlocks blocks={b.ToDo.Children} headings={headings} />
+            )}
+          </div>
+        )
+      }
     )
   }
 </div>
-
-<style>
-  .to-do {
-    color: #222;
-    font-weight: 400;
-    font-size: 1rem;
-    line-height: 1.8rem;
-    padding-inline-start: 1rem;
-  }
-  .to-do > div {
-  }
-  .to-do > div > input {
-  }
-  .to-do > div > s {
-    color: var(--accents-3);
-  }
-</style>
+<!-- Style tag removed as its content is migrated to Tailwind classes -->

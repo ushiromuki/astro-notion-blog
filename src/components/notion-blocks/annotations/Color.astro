@@ -1,19 +1,45 @@
 ---
 import { RichText } from '../../../lib/interfaces.ts'
-import { snakeToKebab } from '../../../lib/style-helpers.ts'
-import '../../../styles/notion-color.css'
+// import { snakeToKebab } from '../../../lib/style-helpers.ts' // No longer needed for class name generation here
+// import '../../../styles/notion-color.css' // Commenting out as its usages are replaced by Tailwind classes
 
 export interface Props {
   richText: RichText
 }
 
 const { richText } = Astro.props
+
+const colorMap: { [key: string]: string } = {
+  gray: 'text-[rgba(120,119,116,1)]',
+  brown: 'text-[rgba(159,107,83,1)]',
+  orange: 'text-[rgba(217,115,13,1)]',
+  yellow: 'text-[rgba(203,145,47,1)]',
+  green: 'text-[rgba(68,131,97,1)]',
+  blue: 'text-[rgba(51,126,169,1)]',
+  purple: 'text-[rgba(144,101,176,1)]',
+  pink: 'text-[rgba(193,76,138,1)]',
+  red: 'text-[rgba(212,76,71,1)]',
+  'gray-background': '!bg-[rgba(241,241,239,1)]',
+  'brown-background': '!bg-[rgba(244,238,238,1)]',
+  'orange-background': '!bg-[rgba(251,236,221,1)]',
+  'yellow-background': '!bg-[rgba(251,243,219,1)]',
+  'green-background': '!bg-[rgba(237,243,236,1)]',
+  'blue-background': '!bg-[rgba(231,243,248,1)]',
+  'purple-background': '!bg-[rgba(244,240,247,0.8)]',
+  'pink-background': '!bg-[rgba(249,238,243,0.8)]',
+  'red-background': '!bg-[rgba(253,235,236,1)]',
+}
+
+// Notion API provides colors like "blue_background", style-helpers.ts converts to "blue-background"
+// We'll use the kebab-case version as keys in our map, which is what snakeToKebab would produce.
+const annotationColor = richText.Annotation.Color.replaceAll('_', '-')
+const tailwindClass = colorMap[annotationColor] || ''
 ---
 
 {
   /* prettier-ignore */
-  richText.Annotation.Color && richText.Annotation.Color !== 'default' ? (
-    <span class={snakeToKebab(richText.Annotation.Color)}><slot /></span>
+  richText.Annotation.Color && richText.Annotation.Color !== 'default' && tailwindClass ? (
+    <span class={tailwindClass}><slot /></span>
   ) : (
     <slot />
   )

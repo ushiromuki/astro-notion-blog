@@ -2,7 +2,7 @@
 import type { SelectProperty } from '../lib/interfaces.ts'
 import { getTagLink } from '../lib/blog-helpers.ts'
 import NoContents from './NoContents.astro'
-import '../styles/notion-color.css'
+// import '../styles/notion-color.css' // Removed import
 
 export interface Props {
   heading: string
@@ -10,6 +10,23 @@ export interface Props {
 }
 
 const { heading, tags } = Astro.props
+
+const specificTagColorStyles: { [key: string]: string } = {
+  'light-gray': 'text-[rgb(28,56,41)] !bg-[rgba(227,226,224,0.5)]',
+  gray: 'text-[rgb(28,56,41)] !bg-[rgb(227,226,224)]',
+  brown: 'text-[rgb(28,56,41)] !bg-[rgb(238,224,218)]',
+  orange: 'text-[rgb(28,56,41)] !bg-[rgb(250,222,201)]',
+  yellow: 'text-[rgb(28,56,41)] !bg-[rgb(253,236,200)]',
+  green: 'text-[rgb(28,56,41)] !bg-[rgb(219,237,219)]',
+  blue: 'text-[rgb(28,56,41)] !bg-[rgb(211,229,239)]',
+  purple: 'text-[rgb(28,56,41)] !bg-[rgb(232,222,238)]',
+  pink: 'text-[rgb(28,56,41)] !bg-[rgb(245,224,233)]',
+  red: 'text-[rgb(28,56,41)] !bg-[rgb(255,226,221)]',
+}
+
+const baseTagClasses = 'tag block min-w-0 rounded-[3px] px-[6px] py-[2px] leading-[1.2]'
+const defaultColorClasses = 'text-[var(--fg)] bg-[rgba(227,226,224,0.5)]'
+
 ---
 
 <div class="blog-tags-link">
@@ -19,13 +36,16 @@ const { heading, tags } = Astro.props
       <NoContents contents={tags} />
     ) : (
       <ul>
-        {tags.map((tag: SelectProperty) => (
-          <li>
-            <a href={getTagLink(tag.name)} class={`tag ${tag.color}`}>
-              {tag.name}
-            </a>
-          </li>
-        ))}
+        {tags.map((tag: SelectProperty) => {
+          const colorClass = specificTagColorStyles[tag.color] || defaultColorClasses
+          return (
+            <li>
+              <a href={getTagLink(tag.name)} class={`${baseTagClasses} ${colorClass}`}>
+                {tag.name}
+              </a>
+            </li>
+          )
+        })}
       </ul>
     )
   }
@@ -54,13 +74,5 @@ const { heading, tags } = Astro.props
     line-height: 1.2rem;
     font-size: 0.9rem;
   }
-  .blog-tags-link ul li a {
-    display: block;
-    min-width: 0;
-    border-radius: 3px;
-    padding: 2px 6px;
-    line-height: 1.2;
-    color: var(--fg);
-    background: rgba(227, 226, 224, 0.5);
-  }
+  /* .blog-tags-link ul li a rule removed as styles are now applied directly */
 </style>

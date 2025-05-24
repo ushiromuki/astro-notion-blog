@@ -10,21 +10,56 @@ export interface Props {
 }
 
 const { block, headings } = Astro.props
+
+const notionColorToTailwindBackground: { [key: string]: string } = {
+  'default-background': 'bg-[rgba(235,236,237,0.6)]', // Default from existing CSS
+  'gray-background': '!bg-[rgba(241,241,239,1)]',
+  'brown-background': '!bg-[rgba(244,238,238,1)]',
+  'orange-background': '!bg-[rgba(251,236,221,1)]',
+  'yellow-background': '!bg-[rgba(251,243,219,1)]',
+  'green-background': '!bg-[rgba(237,243,236,1)]',
+  'blue-background': '!bg-[rgba(231,243,248,1)]',
+  'purple-background': '!bg-[rgba(244,240,247,0.8)]',
+  'pink-background': '!bg-[rgba(249,238,243,0.8)]',
+  'red-background': '!bg-[rgba(253,235,236,1)]',
+  // The Notion API might also send just "gray", "blue" etc. for Callout.Color
+  // which in notion-color.css meant text color. However, Callouts are typically background-colored.
+  // If a simple color name is received, we'll assume it implies a default background
+  // and the text color will be handled by RichText component.
+  // For safety, ensure a default background is always chosen if no match.
+}
+
+const calloutBaseClasses = "flex my-[0.4rem] mx-auto px-3 py-4 w-full text-base font-normal leading-[1.6rem] rounded-[3px] border border-solid border-transparent"
+const defaultBgClass = 'bg-[rgba(235,236,237,0.6)]' // Default from existing CSS
+
+let calloutColorKey = snakeToKebab(block.Callout.Color)
+// If the color is like "gray", it might mean text color in original notion-color.css,
+// but for callouts, Notion UI usually sets a background color.
+// We'll check if it's a background type, otherwise use default background.
+if (!calloutColorKey.endsWith('-background')) {
+  calloutColorKey = 'default-background' // Or handle as text color if desired, but background is more typical for callout blocks.
+}
+const bgColorClass = notionColorToTailwindBackground[calloutColorKey] || defaultBgClass
+
+const iconContainerClasses = "m-0 leading-[1.5rem] mr-[0.7rem]"
+const iconImageClasses = "w-[1.2rem] h-[1.2rem]"
+const contentContainerClasses = "m-0 leading-[1.5rem]"
+
 ---
 
-<div class={`callout ${snakeToKebab(block.Callout.Color)}`}>
+<div class={`callout ${calloutBaseClasses} ${bgColorClass}`}>
   {
     block.Callout.Icon && (
-      <div>
+      <div class={iconContainerClasses}>
         {block.Callout.Icon.Type === 'emoji' ? (
           block.Callout.Icon.Emoji
         ) : block.Callout.Icon.Type === 'external' ? (
-          <img src={block.Callout.Icon.Url} alt="Icon in a callout block" />
+          <img src={block.Callout.Icon.Url} alt="Icon in a callout block" class={iconImageClasses} />
         ) : null}
       </div>
     )
   }
-  <div>
+  <div class={contentContainerClasses}>
     {
       block.Callout.RichTexts.map((richText: interfaces.RichText) => (
         <RichText richText={richText} />
@@ -37,31 +72,4 @@ const { block, headings } = Astro.props
     }
   </div>
 </div>
-
-<style>
-  .callout {
-    display: flex;
-    margin: 0.4rem auto;
-    padding: 16px 12px;
-    width: 100%;
-    font-size: 1rem;
-    font-weight: 400;
-    line-height: 1.6rem;
-    border-radius: 3px;
-    border-width: 1px;
-    border-style: solid;
-    border-color: transparent;
-    background: rgba(235, 236, 237, 0.6);
-  }
-  .callout div {
-    margin: 0;
-    line-height: 1.5rem;
-  }
-  .callout div:first-child {
-    margin-right: 0.7rem;
-  }
-  .callout div:first-child img {
-    width: 1.2rem;
-    height: 1.2rem;
-  }
-</style>
+<!-- Style tag removed as its content is migrated to Tailwind classes -->

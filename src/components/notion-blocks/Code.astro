@@ -30,20 +30,20 @@ const grammer =
   Prism.languages[language.toLowerCase()] || Prism.languages.javascript
 ---
 
-<div class="code">
-  <div>
+<div class="code block w-full mb-[0.6rem]">
+  <div class="bg-[rgb(247,246,243)] rounded-[var(--radius)]">
     {
       /* prettier-ignore */
       language === 'mermaid' ? (
-        <pre class="mermaid">{code}</pre>
+        <pre class="mermaid block overflow-auto p-8 text-[0.9rem] leading-[1.2rem] whitespace-pre min-w-full overflow-x-auto">{code}</pre>
       ) : (
         <>
-          <div>
-            <button class="copy" data-code={code} data-done-text="Copied!">
+           <div class="flex justify-end">
+             <button class="copy block w-16 border-0 rounded-[var(--radius)] bg-[rgba(227,226,224,0.5)] text-[var(--fg)] leading-[1.2rem] cursor-pointer" data-code={code} data-done-text="Copied!">
               Copy
             </button>
           </div>
-          <pre><code set:html={Prism.highlight(code, grammer, language)} /></pre>
+           <pre class="block overflow-auto pt-[0.8rem] px-8 pb-8 text-[0.9rem] leading-[1.2rem] whitespace-pre min-w-full overflow-x-auto"><code class="text-[var(--fg)] p-0 !bg-[rgb(247,246,243)] rounded-none" set:html={Prism.highlight(code, grammer, language)} /></pre>
         </>
       )
     }
@@ -76,38 +76,38 @@ const grammer =
 
 <style>
   .code {
-    display: block;
-    width: 100%;
-    margin-bottom: 0.6rem;
+    /* display: block; */
+    /* width: 100%; */
+    /* margin-bottom: 0.6rem; */
   }
   .code > div {
-    background: rgb(247, 246, 243);
-    border-radius: var(--radius);
+    /* background: rgb(247, 246, 243); */
+    /* border-radius: var(--radius); */
   }
   .code > div div {
-    display: flex;
-    justify-content: flex-end;
+    /* display: flex; */
+    /* justify-content: flex-end; */
   }
   .code button.copy {
-    display: block;
-    width: 4rem;
-    border: 0;
-    border-radius: var(--radius);
-    background-color: rgba(227, 226, 224, 0.5);
-    color: var(--fg);
-    line-height: 1.2rem;
-    cursor: pointer;
+    /* display: block; */
+    /* width: 4rem; */
+    /* border: 0; */
+    /* border-radius: var(--radius); */
+    /* background-color: rgba(227, 226, 224, 0.5); */
+    /* color: var(--fg); */
+    /* line-height: 1.2rem; */
+    /* cursor: pointer; */
   }
   .code pre {
-    display: block;
-    overflow: auto;
-    padding: 0.8rem 2rem 2rem;
-    font-size: 0.9rem;
-    line-height: 1.2rem;
-    white-space: pre;
-    width: 100px;
-    min-width: 100%;
-    overflow-x: auto;
+    /* display: block; */ /* Migrated */
+    /* overflow: auto; */ /* Migrated */
+    /* padding: 0.8rem 2rem 2rem; */ /* Migrated to pt-[0.8rem] px-8 pb-8 */
+    /* font-size: 0.9rem; */ /* Migrated */
+    /* line-height: 1.2rem; */ /* Migrated */
+    /* white-space: pre; */ /* Migrated */
+    /* width: 100px; */ /* Migrated (effectively, by min-w-full) */
+    /* min-width: 100%; */ /* Migrated */
+    /* overflow-x: auto; */ /* Migrated */
     &::-webkit-scrollbar {
       height: 10px;
     }
@@ -118,13 +118,6 @@ const grammer =
       background: rgb(237, 236, 233);
     }
   }
-  .code pre.mermaid {
-    padding: 2rem;
-  }
-  .code pre code {
-    color: var(--fg);
-    padding: 0;
-    background: rgb(247, 246, 243) !important;
-    border-radius: 0;
-  }
+  /* .code pre.mermaid rule removed as it's fully migrated (p-8 was applied) */
+  /* .code pre code rule removed as it's fully migrated */
 </style>

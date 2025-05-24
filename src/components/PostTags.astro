@@ -1,7 +1,7 @@
 ---
 import type { Post, SelectProperty } from '../lib/interfaces.ts'
 import { getTagLink } from '../lib/blog-helpers.ts'
-import '../styles/notion-color.css'
+// import '../styles/notion-color.css' // Will be removed once notion-color.css is fully deprecated
 
 export interface Props {
   post: Post
@@ -10,6 +10,23 @@ export interface Props {
 }
 
 const { post, enableLink = true, directionRight = false } = Astro.props
+
+const tagBgColorMap: { [key: string]: string } = {
+  'light-gray': '!bg-[rgba(227,226,224,0.5)]',
+  gray: '!bg-[rgb(227,226,224)]',
+  brown: '!bg-[rgb(238,224,218)]',
+  orange: '!bg-[rgb(250,222,201)]',
+  yellow: '!bg-[rgb(253,236,200)]',
+  green: '!bg-[rgb(219,237,219)]',
+  blue: '!bg-[rgb(211,229,239)]',
+  purple: '!bg-[rgb(232,222,238)]',
+  pink: '!bg-[rgb(245,224,233)]',
+  red: '!bg-[rgb(255,226,221)]',
+  default: '!bg-[rgba(227,226,224,0.5)]', // Default background for tags if color is not in map
+}
+
+const tagTextColor = 'text-[rgb(28,56,41)]'
+
 ---
 
 <div class={`post-tags ${directionRight ? "justify-end":""}`}>
@@ -17,14 +34,16 @@ const { post, enableLink = true, directionRight = false } = Astro.props
     post.Tags &&
       post.Tags.length > 0 &&
       post.Tags.map((tag: SelectProperty) => {
+        const bgColorClass = tagBgColorMap[tag.color] || tagBgColorMap.default
+        const tagClasses = `tag ${tagTextColor} ${bgColorClass}`
         if (enableLink) {
           return (
-            <a href={getTagLink(tag.name)} class={`tag ${tag.color}`}>
+            <a href={getTagLink(tag.name)} class={tagClasses}>
               {tag.name}
             </a>
           )
         }
-        return <span class={`tag ${tag.color}`}>{tag.name}</span>
+        return <span class={tagClasses}>{tag.name}</span>
       })
   }
 </div>
