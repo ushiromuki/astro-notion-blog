@@ -3,7 +3,7 @@ import * as interfaces from '../../lib/interfaces.ts'
 import { snakeToKebab } from '../../lib/style-helpers.ts'
 import RichText from './RichText.astro'
 import NotionBlocks from '../NotionBlocks.astro'
-import '../../styles/notion-color.css'
+// import '../../styles/notion-color.css' // Removed import
 
 export interface Props {
   block: interfaces.Block
@@ -11,30 +11,43 @@ export interface Props {
 }
 
 const { block, headings } = Astro.props
+
+const notionColorToTailwindText: { [key: string]: string } = {
+  default: '',
+  gray: 'text-[rgba(120,119,116,1)]',
+  brown: 'text-[rgba(159,107,83,1)]',
+  orange: 'text-[rgba(217,115,13,1)]',
+  yellow: 'text-[rgba(203,145,47,1)]',
+  green: 'text-[rgba(68,131,97,1)]',
+  blue: 'text-[rgba(51,126,169,1)]',
+  purple: 'text-[rgba(144,101,176,1)]',
+  pink: 'text-[rgba(193,76,138,1)]',
+  red: 'text-[rgba(212,76,71,1)]',
+}
+
 ---
 
-<ul>
+<ul class="text-base"> {/* Applied text-base for font-size: 1rem */}
   {
     block.ListItems.filter(
       (b: interfaces.Block) => b.Type === 'bulleted_list_item'
-    ).map((b: interfaces.Block) => (
-      <li class={snakeToKebab(b.BulletedListItem.Color)}>
-        {b.BulletedListItem.RichTexts.map((richText: interfaces.RichText) => (
-          <RichText richText={richText} />
-        ))}
-        {b.HasChildren && (
-          <NotionBlocks
-            blocks={b.BulletedListItem.Children}
-            headings={headings}
-          />
-        )}
-      </li>
-    ))
+    ).map((b: interfaces.Block) => {
+      const colorKey = snakeToKebab(b.BulletedListItem.Color)
+      const colorClass = notionColorToTailwindText[colorKey] || ''
+      return (
+        <li class={colorClass}>
+          {b.BulletedListItem.RichTexts.map((richText: interfaces.RichText) => (
+            <RichText richText={richText} />
+          ))}
+          {b.HasChildren && (
+            <NotionBlocks
+              blocks={b.BulletedListItem.Children}
+              headings={headings}
+            />
+          )}
+        </li>
+      )
+    })
   }
 </ul>
-
-<style>
-  ul {
-    font-size: 1rem;
-  }
-</style>
+<!-- Style tag removed as its content is migrated to Tailwind classes -->
