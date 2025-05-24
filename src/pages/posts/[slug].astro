@@ -25,7 +25,7 @@ getPosts,
 getPostsByTag,
 getRankedPosts,
 } from '../../lib/notion/client'
-import styles from '../../styles/blog.module.css'
+// import styles from '../../styles/blog.module.css' // Styles migrated to Tailwind
 
 export async function getStaticPaths() {
   const posts = await getAllPosts()
@@ -117,15 +117,17 @@ if (post.Cover && post.Cover.Url) {
   ogImage={ogImage}
   pageCoverImage={pageCoverImage}
 >
-  <div slot="main" class={styles.main}>
-    <div class={styles.post}>
+  <div slot="main" class=""> {/* Removed styles.main */}
+    <header class="pb-5"> {/* Added header with pb-5 for .main header styles */}
       <PostDate post={post} />
       <PostTags post={post} enableLink={false} />
       <PostTitle post={post} enableLink={false} />
+    </header>
+    <div class="mx-auto mb-10"> {/* Removed styles.post, added mx-auto mb-10 */}
       <PostBody blocks={blocks} />
       <PostTags post={post} enableLink={false}/>
 
-      <footer>
+      <footer class="mt-2 p-0 border-0"> {/* Added mt-2 p-0 border-0 for .post footer styles */}
         <PostRelativeLink prevPost={prevPost} nextPost={nextPost} />
       </footer>
     </div>

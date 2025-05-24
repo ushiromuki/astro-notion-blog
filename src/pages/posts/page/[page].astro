@@ -15,7 +15,7 @@ getAllTags,
 getNumberOfPages,
 getPostsByPage,
 } from '../../../lib/notion/client'
-import styles from '../../../styles/blog.module.css'
+// import styles from '../../../styles/blog.module.css' // Styles migrated to Tailwind
 
 export async function getStaticPaths() {
   const numberOfPages = await getNumberOfPages()
@@ -37,8 +37,8 @@ const [posts, tags, numberOfPages] = await Promise.all([
 ---
 
 <Layout title={`Posts ${page}/${numberOfPages}`} path={`/posts/page/${page}`}>
-  <div slot="main" class={styles.main}>
-    <header>
+  <div slot="main" class=""> {/* Removed styles.main */}
+    <header class="pb-5"> {/* Added pb-5 for .main header styles */}
       <div class="page-container">{page}/{numberOfPages}</div>
     </header>
 
@@ -47,7 +47,7 @@ const [posts, tags, numberOfPages] = await Promise.all([
         <NoContents contents={posts} />
       ) : (
         posts.map((post) => (
-          <div class={styles.post}>
+          <div class="mx-auto mb-10"> {/* Removed styles.post, added mx-auto mb-10 */}
             <PostDate post={post} />
             <PostTags post={post} enableLink={false} />
             <PostTitle post={post} enableLink={false} />
@@ -59,7 +59,7 @@ const [posts, tags, numberOfPages] = await Promise.all([
       )
     }
 
-    <footer>
+    <footer class="border-t border-dashed border-neutral-400 mx-auto pt-10 px-0 sm:mx-auto sm:mb-10 sm:mt-0"> {/* Added styles for .main footer */}
       <Pagination
         currentPage={parseInt(page, 10)}
         numberOfPages={numberOfPages}
