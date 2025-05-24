@@ -3,7 +3,7 @@ import * as interfaces from '../../lib/interfaces.ts'
 import { snakeToKebab } from '../../lib/style-helpers.ts'
 import RichText from './RichText.astro'
 import NotionBlocks from '../NotionBlocks.astro'
-import '../../styles/notion-color.css'
+// import '../../styles/notion-color.css' // Removed import
 
 export interface Props {
   block: interfaces.Block
@@ -11,9 +11,35 @@ export interface Props {
 }
 
 const { block, headings } = Astro.props
+
+const notionColorToTailwindText: { [key: string]: string } = {
+  default: '', // Default color, no specific class needed
+  gray: 'text-[rgba(120,119,116,1)]',
+  brown: 'text-[rgba(159,107,83,1)]',
+  orange: 'text-[rgba(217,115,13,1)]',
+  yellow: 'text-[rgba(203,145,47,1)]',
+  green: 'text-[rgba(68,131,97,1)]',
+  blue: 'text-[rgba(51,126,169,1)]',
+  purple: 'text-[rgba(144,101,176,1)]',
+  pink: 'text-[rgba(193,76,138,1)]',
+  red: 'text-[rgba(212,76,71,1)]',
+  // Note: Notion API might send background colors too, e.g., 'gray_background'.
+  // The map above only handles text colors as per notion-color.css for simple color names.
+  // If a paragraph block itself needs a background, this map would need to be extended,
+  // or that behavior is handled differently (e.g. Callout blocks).
+  // For this component, we are primarily concerned with text color of the paragraph block.
+}
+
+const pBaseClasses = "my-[1.6rem] text-base min-h-[1.8rem]"
+
+// Convert Notion color (e.g., 'gray', 'blue_background') to kebab-case for map lookup if needed,
+// though for simple text colors, it's often direct.
+const paragraphColorKey = snakeToKebab(block.Paragraph.Color)
+const colorClass = notionColorToTailwindText[paragraphColorKey] || ''
+
 ---
 
-<p class={snakeToKebab(block.Paragraph.Color)}>
+<p class={`${pBaseClasses} ${colorClass}`}>
   {
     block.Paragraph.RichTexts.map((richText: interfaces.RichText) => (
       <RichText richText={richText} />
@@ -25,11 +51,4 @@ const { block, headings } = Astro.props
     )
   }
 </p>
-
-<style>
-  p {
-    margin: 1.6rem 0;
-    font-size: 1rem;
-    min-height: 1.8rem;
-  }
-</style>
+<!-- Style tag removed as its content is migrated to Tailwind classes -->
