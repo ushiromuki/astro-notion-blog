@@ -4,7 +4,7 @@ import SearchModal from '../components/SearchModal.astro'
 import { filePath, getNavLink } from '../lib/blog-helpers.ts'
 import { getDatabase } from '../lib/notion/client.ts'
 import '../styles/global.css'
-import '../styles/syntax-coloring.css'
+// import '../styles/syntax-coloring.css' // Removed as syntax highlighting is handled by PrismJS themes or component-level styling
 
 export interface Props {
   title: string
