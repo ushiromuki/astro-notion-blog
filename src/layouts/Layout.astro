@@ -22,7 +22,24 @@ const {
   pageCoverImage = '',
 } = Astro.props
 
-const database = await getDatabase()
+// Default database object
+let database = {
+  Title: 'My Awesome Blog', // Default title
+  Description: 'A blog about interesting things.', // Default description
+  Cover: null,
+  Icon: null,
+}
+
+try {
+  const fetchedDatabase = await getDatabase()
+  // If fetchedDatabase is not null or undefined, merge it with defaults
+  // This prioritizes fetched values but keeps defaults as fallbacks
+  if (fetchedDatabase) {
+    database = { ...database, ...fetchedDatabase }
+  }
+} catch (error) {
+  console.error('Failed to fetch database from Notion API. Using default site metadata. Error:', error)
+}
 
 const siteTitle = title ? `${title} - ${database.Title}` : database.Title
 const siteDescription = description ? description : database.Description
@@ -37,7 +54,7 @@ if (database.Cover) {
     try {
       coverImageURL = filePath(new URL(database.Cover.Url))
     } catch {
-      console.log('Invalid DB cover image URL: ', database.Cover?.Url)
+      // console.log('Invalid DB cover image URL: ', database.Cover?.Url) // Optional: Keep for debugging if needed
     }
   }
 }
@@ -47,7 +64,7 @@ if (database.Icon && database.Icon.Type === 'file') {
   try {
     customIconURL = filePath(new URL(database.Icon.Url))
   } catch {
-    console.log('Invalid DB custom icon URL: ', database.Icon?.Url)
+    // console.log('Invalid DB custom icon URL: ', database.Icon?.Url) // Optional: Keep for debugging if needed
   }
 }
 ---
@@ -66,7 +83,7 @@ if (database.Icon && database.Icon.Type === 'file') {
     <meta property="og:url" content={siteURL} />
     <meta property="og:title" content={siteTitle} />
     <meta property="og:description" content={siteDescription} />
-    <meta property="og:site_name" content={database.Title} />
+    <meta property="og:site_name" content={database.Title || 'Blog'} />
     <meta property="og:image" content={ogImage || siteOGImage} />
     <meta name="twitter:title" content={siteTitle} />
     <meta name="twitter:description" content={siteDescription} />
@@ -103,12 +120,12 @@ if (database.Icon && database.Icon.Type === 'file') {
                     database.Icon && database.Icon.Type === 'emoji' ? (
                       <>
                         <span class="title-icon inline-block text-[1.1em] ml-[-0.1rem] inline-flex justify-center self-center w-[120px] h-[120px] bg-[var(--bg)] mt-[-64px] mr-4 text-[3.5em] rounded-[var(--radius)] sm:w-[96px] sm:h-[96px] sm:text-[2.4em]">{database.Icon.Emoji}</span>
-                        {database.Title}
+                        {database.Title || 'Blog'}
                       </>
                     ) : database.Icon && database.Icon.Type === 'external' ? (
                       <>
                         <img src={database.Icon.Url} alt="Site icon image" class="inline-block text-[1.1em] w-[1.2em] h-[1.2em] mr-[0.2em] ml-[-0.3rem] align-sub sm:w-[0.8em] sm:h-[0.8em]" />
-                        {database.Title}
+                        {database.Title || 'Blog'}
                       </>
                     ) : database.Icon && database.Icon.Type === 'file' ? (
                       <>
@@ -117,10 +134,10 @@ if (database.Icon && database.Icon.Type === 'file') {
                           class="custom-icon inline-block text-[1.1em] w-[1.2em] h-[1.2em] mr-[0.2em] ml-[-0.3rem] align-sub rounded-[var(--radius)] sm:w-[0.8em] sm:h-[0.8em]"
                           alt="Site icon image"
                         />
-                        {database.Title}
+                        {database.Title || 'Blog'}
                       </>
                     ) : (
-                      database.Title
+                      database.Title || 'Blog'
                     )
                   }
                   </a>
