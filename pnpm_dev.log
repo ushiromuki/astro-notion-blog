@@ -1,0 +1,16 @@
+
+> astro-notion-blog@0.10.0 dev /app
+> astro dev --host
+
+07:50:52 [types] Generated 1ms
+07:50:52 [content] Syncing content
+07:50:52 [content] Synced content
+07:50:52 [vite] Port 4321 is in use, trying another one...
+07:50:52 [vite] Port 4322 is in use, trying another one...
+
+ astro  v5.5.2 ready in 2178 ms
+
+┃ Local    http://localhost:4323/
+┃ Network  http://192.168.0.2:4323/
+
+07:50:52 watching for file changes...
